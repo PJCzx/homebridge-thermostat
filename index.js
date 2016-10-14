@@ -119,12 +119,6 @@ Thermostat.prototype = {
 			}
 		}.bind(this));
 	},
-	setCurrentHeatingCoolingState: function(value, callback) {
-		this.log("TO BE REMOVED BECAUSE USELESS setCurrentHeatingCoolingState:", value);
-		this.heatingCoolingState = value;
-		var error = null;
-		callback(error);
-	},
 	getTargetHeatingCoolingState: function(callback) {
 		this.log("getTargetHeatingCoolingState:", this.targetHeatingCoolingState);
 		var error = null;
@@ -293,8 +287,7 @@ Thermostat.prototype = {
 		// Required Characteristics
 		thermostatService
 			.getCharacteristic(Characteristic.CurrentHeatingCoolingState)
-			.on('get', this.getCurrentHeatingCoolingState.bind(this))
-			.on('set', this.setCurrentHeatingCoolingState.bind(this));
+			.on('get', this.getCurrentHeatingCoolingState.bind(this));
 
 		thermostatService
 			.getCharacteristic(Characteristic.TargetHeatingCoolingState)
