@@ -106,6 +106,10 @@ Thermostat.prototype = {
 					case "COMFORT_MINUS_TWO":
 					this.state = Characteristic.TargetHeatingCoolingState.COOL;
 					break;
+					
+					case "AUTO":
+					this.state = Characteristic.TargetHeatingCoolingState.HEAT;
+					break;
 
 					default:
 					this.state = Characteristic.TargetHeatingCoolingState.HEAT;
