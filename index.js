@@ -157,7 +157,7 @@ Thermostat.prototype = {
 			break;
 
 			default:
-			action = "/no-frost";
+			action = "/off";
 			this.log("Not handled case:", json.state);
 			break;
 		}
