@@ -90,88 +90,82 @@ Thermostat.prototype = {
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
-				var json = JSON.parse(body); //{"state":"OFF","stateCode":5,"temperature":"18.10","humidity":"34.10"}
-				this.log("Heating state is %s", json.targetState);
-				switch(json.targetState) {
-
-					case "COMFORT":
-					this.state = Characteristic.CurrentHeatingCoolingState.HEAT;
-					break;
-					
-					case "COMFORT_MINUS_TWO":
-					this.state = Characteristic.CurrentHeatingCoolingState.COOL;
-					break;
-
-					case "OFF":
-					this.state = Characteristic.CurrentHeatingCoolingState.OFF;
-					break;
-					
-					case "NO_FROST":
-					this.state = Characteristic.CurrentHeatingCoolingState.OFF;
-					break;
-					
-					case "AUTO":
-					this.state = Characteristic.CurrentHeatingCoolingState.HEAT;
-					break;
-
-					default:
-					this.state = Characteristic.CurrentHeatingCoolingState.HEAT;
-					this.log("Not handled case:", json.targetState);
-					break;
-				}
-				callback(null, this.state); // success
+				var json = JSON.parse(body); //{"targetState":"AUTO","targetStateCode":6,"currentHeatingCoolingState":0,"targetTemperature":10,"temperature":12,"humidity":98}
+				this.log("currentHeatingCoolingState is %s", json.currentHeatingCoolingState);
+				this.currentHeatingCoolingState = json.currentHeatingCoolingState;
+				this.service.setCharacteristic(Characteristic.CurrentHeatingCoolingState, this.currentHeatingCoolingState);
+				
+				callback(null, this.currentHeatingCoolingState); // success
 			} else {
-				this.log("Error getting state: %s", err);
+				this.log("Error getting CurrentHeatingCoolingState: %s", err);
 				callback(err);
 			}
 		}.bind(this));
 	},
 	getTargetHeatingCoolingState: function(callback) {
-		this.log("getTargetHeatingCoolingState:", this.targetHeatingCoolingState);
-		var error = null;
-		callback(error, this.targetHeatingCoolingState);
-	},
-	setTargetHeatingCoolingState: function(value, callback) {
-		this.log("setTargetHeatingCoolingState from/to:", this.targetHeatingCoolingState, value);
-		this.targetHeatingCoolingState = value;
-
-		var action;
-
-		switch(this.targetHeatingCoolingState) {
-			case Characteristic.TargetHeatingCoolingState.OFF:
-			action = "/no-frost";
-			break;
-
-			case Characteristic.TargetHeatingCoolingState.HEAT://"COMFORT"
-			action = "/comfort";
-			break;
-			
-			case Characteristic.TargetHeatingCoolingState.AUTO://"AUTO"
-			action = "/auto";
-			break;
-			
-			case Characteristic.TargetHeatingCoolingState.COOL://"COMFORT_MINUS_TWO"
-			action = "/comfort-minus-two";
-			break;
-
-			default:
-			action = "/off";
-			this.log("Not handled case:", json.targetState);
-			break;
-		}
-		
+		this.log("getTargetHeatingCoolingState from:", this.apiroute+"/status");
 		request.get({
-			url: this.apiroute + action
+			url: this.apiroute+"/status"
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
-				this.heatingCoolingState = this.targetHeatingCoolingState;
-				callback(null); // success
+				var json = JSON.parse(body); //{"targetState":"AUTO","targetStateCode":6,"currentHeatingCoolingState":0,"targetTemperature":10,"temperature":12,"humidity":98}
+				this.log("targetState is %s", json.targetStateCode);
+				this.targetState = json.targetStateCode;
+				this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, this.targetStateCode);
+				
+				callback(null, this.targetStateCode); // success
 			} else {
-				this.log("Error getting state: %s", err);
+				this.log("Error getting TargetHeatingCoolingState: %s", err);
 				callback(err);
 			}
 		}.bind(this));
+	},
+	setTargetHeatingCoolingState: function(value, callback) {
+		if(value === undefined) {
+			callback(); //Some stuff call this without value doing shit with the rest
+		} else {
+			this.log("setTargetHeatingCoolingState from/to:", this.targetHeatingCoolingState, value);
+			
+			var action;
+
+			switch(value) {
+				case Characteristic.TargetHeatingCoolingState.OFF:
+				action = "/off";
+				break;
+
+				case Characteristic.TargetHeatingCoolingState.HEAT:
+				action = "/comfort";
+				break;
+				
+				case Characteristic.TargetHeatingCoolingState.AUTO:
+				action = "/auto";
+				break;
+				
+				case Characteristic.TargetHeatingCoolingState.COOL:
+				action = "/no-frost";
+				break;
+
+				default:
+				action = "/no-frost";
+				this.log("Not handled case:", value);
+				break;
+			}
+			
+			request.get({
+				url: this.apiroute + action
+			}, function(err, response, body) {
+				if (!err && response.statusCode == 200) {
+					this.log("response success");
+					//this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
+					this.targetHeatingCoolingState = value;
+					callback(null); // success
+				} else {
+					this.log("Error getting state: %s", err);
+					callback(err);
+				}
+			}.bind(this));
+		}
 	},
 	getCurrentTemperature: function(callback) {
 		this.log("getCurrentTemperature from:", this.apiroute+"/status");
@@ -180,8 +174,8 @@ Thermostat.prototype = {
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
-				var json = JSON.parse(body); //{"state":"OFF","stateCode":5,"temperature":"18.10","humidity":"34.10"}
-				this.log("Heating state is %s (%s)", json.targetState, json.temperature);
+				var json = JSON.parse(body); //{"state":"OFF","targetStateCode":5,"temperature":"18.10","humidity":"34.10"}
+				this.log("CurrentTemperature %s", json.temperature);
 				this.temperature = parseFloat(json.temperature);
 				callback(null, this.temperature); // success
 			} else {
@@ -197,7 +191,7 @@ Thermostat.prototype = {
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
-				var json = JSON.parse(body); //{"state":"OFF","stateCode":5,"temperature":"18.10","humidity":"34.10"}
+				var json = JSON.parse(body); //{"state":"OFF","targetStateCode":5,"temperature":"18.10","humidity":"34.10"}
 				this.targetTemperature = parseFloat(json.targetTemperature);
 				this.log("Target temperature is %s", this.targetTemperature);
 				callback(null, this.targetTemperature); // success
@@ -241,7 +235,7 @@ Thermostat.prototype = {
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
-				var json = JSON.parse(body); //{"state":"OFF","stateCode":5,"temperature":"18.10","humidity":"34.10"}
+				var json = JSON.parse(body); //{"state":"OFF","targetStateCode":5,"temperature":"18.10","humidity":"34.10"}
 				this.log("Humidity state is %s (%s)", json.targetState, json.humidity);
 				this.relativeHumidity = parseFloat(json.humidity);
 				callback(null, this.relativeHumidity); // success
