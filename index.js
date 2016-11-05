@@ -91,9 +91,6 @@ Thermostat.prototype = {
 				var json = JSON.parse(body); //{"state":"OFF","stateCode":5,"temperature":"18.10","humidity":"34.10"}
 				this.log("Heating state is %s", json.state);
 				switch(json.state) {
-					case "OFF":
-					this.state = Characteristic.TargetHeatingCoolingState.OFF;
-					break;
 
 					case "COMFORT":
 					this.state = Characteristic.TargetHeatingCoolingState.HEAT;
@@ -106,9 +103,17 @@ Thermostat.prototype = {
 					case "COMFORT_MINUS_TWO":
 					this.state = Characteristic.TargetHeatingCoolingState.COOL;
 					break;
+
+					case "OFF":
+					this.state = Characteristic.TargetHeatingCoolingState.OFF;
+					break;
+					
+					case "NO_FROST":
+					this.state = Characteristic.TargetHeatingCoolingState.OFF;
+					break;
 					
 					case "AUTO":
-					this.state = Characteristic.TargetHeatingCoolingState.HEAT;
+					this.state = Characteristic.TargetHeatingCoolingState.AUTO;
 					break;
 
 					default:
