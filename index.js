@@ -141,7 +141,7 @@ Thermostat.prototype = {
 
 		switch(this.targetHeatingCoolingState) {
 			case Characteristic.TargetHeatingCoolingState.OFF:
-			action = "/off";
+			action = "/no-frost";
 			break;
 
 			case Characteristic.TargetHeatingCoolingState.HEAT://"COMFORT"
