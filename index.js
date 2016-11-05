@@ -91,8 +91,8 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{"state":"OFF","stateCode":5,"temperature":"18.10","humidity":"34.10"}
-				this.log("Heating state is %s", json.state);
-				switch(json.state) {
+				this.log("Heating state is %s", json.targetState);
+				switch(json.targetState) {
 
 					case "COMFORT":
 					this.state = Characteristic.CurrentHeatingCoolingState.HEAT;
@@ -116,7 +116,7 @@ Thermostat.prototype = {
 
 					default:
 					this.state = Characteristic.CurrentHeatingCoolingState.HEAT;
-					this.log("Not handled case:", json.state);
+					this.log("Not handled case:", json.targetState);
 					break;
 				}
 				callback(null, this.state); // success
@@ -156,7 +156,7 @@ Thermostat.prototype = {
 
 			default:
 			action = "/off";
-			this.log("Not handled case:", json.state);
+			this.log("Not handled case:", json.targetState);
 			break;
 		}
 		
@@ -181,7 +181,7 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{"state":"OFF","stateCode":5,"temperature":"18.10","humidity":"34.10"}
-				this.log("Heating state is %s (%s)", json.state, json.temperature);
+				this.log("Heating state is %s (%s)", json.targetState, json.temperature);
 				this.temperature = parseFloat(json.temperature);
 				callback(null, this.temperature); // success
 			} else {
@@ -242,7 +242,7 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{"state":"OFF","stateCode":5,"temperature":"18.10","humidity":"34.10"}
-				this.log("Humidity state is %s (%s)", json.state, json.humidity);
+				this.log("Humidity state is %s (%s)", json.targetState, json.humidity);
 				this.relativeHumidity = parseFloat(json.humidity);
 				callback(null, this.relativeHumidity); // success
 			} else {
