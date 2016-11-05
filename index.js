@@ -57,6 +57,8 @@ function Thermostat(log, config) {
 	//Characteristic.TargetHeatingCoolingState.COOL = 2;
 	//Characteristic.TargetHeatingCoolingState.AUTO = 3;
 	this.targetHeatingCoolingState = Characteristic.TargetHeatingCoolingState.AUTO;
+
+	this.service = new Service.Thermostat(this.name);
 }
 
 Thermostat.prototype = {
@@ -93,27 +95,27 @@ Thermostat.prototype = {
 				switch(json.state) {
 
 					case "COMFORT":
-					this.state = Characteristic.TargetHeatingCoolingState.HEAT;
+					this.state = Characteristic.CurrentHeatingCoolingState.HEAT;
 					break;
 					
 					case "COMFORT_MINUS_TWO":
-					this.state = Characteristic.TargetHeatingCoolingState.COOL;
+					this.state = Characteristic.CurrentHeatingCoolingState.COOL;
 					break;
 
 					case "OFF":
-					this.state = Characteristic.TargetHeatingCoolingState.OFF;
+					this.state = Characteristic.CurrentHeatingCoolingState.OFF;
 					break;
 					
 					case "NO_FROST":
-					this.state = Characteristic.TargetHeatingCoolingState.OFF;
+					this.state = Characteristic.CurrentHeatingCoolingState.OFF;
 					break;
 					
 					case "AUTO":
-					this.state = Characteristic.TargetHeatingCoolingState.AUTO;
+					this.state = Characteristic.CurrentHeatingCoolingState.HEAT;
 					break;
 
 					default:
-					this.state = Characteristic.TargetHeatingCoolingState.HEAT;
+					this.state = Characteristic.CurrentHeatingCoolingState.HEAT;
 					this.log("Not handled case:", json.state);
 					break;
 				}
@@ -287,55 +289,55 @@ Thermostat.prototype = {
 			.setCharacteristic(Characteristic.Model, "HTTP Model")
 			.setCharacteristic(Characteristic.SerialNumber, "HTTP Serial Number");
 
-		var thermostatService = new Service.Thermostat(this.name);
+		
 
 		// Required Characteristics
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.CurrentHeatingCoolingState)
 			.on('get', this.getCurrentHeatingCoolingState.bind(this));
 
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.TargetHeatingCoolingState)
 			.on('get', this.getTargetHeatingCoolingState.bind(this))
 			.on('set', this.setTargetHeatingCoolingState.bind(this));
 
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.CurrentTemperature)
 			.on('get', this.getCurrentTemperature.bind(this));
 
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.TargetTemperature)
 			.on('get', this.getTargetTemperature.bind(this))
 			.on('set', this.setTargetTemperature.bind(this));
 
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.TemperatureDisplayUnits)
 			.on('get', this.getTemperatureDisplayUnits.bind(this))
 			.on('set', this.setTemperatureDisplayUnits.bind(this));
 
 		// Optional Characteristics
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.CurrentRelativeHumidity)
 			.on('get', this.getCurrentRelativeHumidity.bind(this));
 
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.TargetRelativeHumidity)
 			.on('get', this.getTargetRelativeHumidity.bind(this))
 			.on('set', this.setTargetRelativeHumidity.bind(this));
 		/*
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.CoolingThresholdTemperature)
 			.on('get', this.getCoolingThresholdTemperature.bind(this));
 		*/
 
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.HeatingThresholdTemperature)
 			.on('get', this.getHeatingThresholdTemperature.bind(this));
 
-		thermostatService
+		this.service
 			.getCharacteristic(Characteristic.Name)
 			.on('get', this.getName.bind(this));
 
-		return [informationService, thermostatService];
+		return [informationService, this.service];
 	}
 };
