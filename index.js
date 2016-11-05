@@ -96,10 +96,6 @@ Thermostat.prototype = {
 					this.state = Characteristic.TargetHeatingCoolingState.HEAT;
 					break;
 					
-					case "COMFORT_MINUS_ONE":
-					this.state = Characteristic.TargetHeatingCoolingState.AUTO;
-					break;
-					
 					case "COMFORT_MINUS_TWO":
 					this.state = Characteristic.TargetHeatingCoolingState.COOL;
 					break;
@@ -200,9 +196,9 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{"state":"OFF","stateCode":5,"temperature":"18.10","humidity":"34.10"}
-				this.temperature = parseFloat(json.targetTemperature);
+				this.targetTemperature = parseFloat(json.targetTemperature);
 				this.log("Target temperature is %s", this.targetTemperature);
-				callback(null, this.temperature); // success
+				callback(null, this.targetTemperature); // success
 			} else {
 				this.log("Error getting state: %s", err);
 				callback(err);
