@@ -32,11 +32,11 @@ module.exports = function(homebridge){
 
 function Thermostat(log, config) {
 	this.log = log;
-
+	this.maxTemp = config.maxTemp || 38;
+	this.minTemp = config.minTemp || 12;
 	this.name = config.name;
 	this.apiroute = config.apiroute || "apiroute";
 	this.log(this.name, this.apiroute);
-
 	//Characteristic.TemperatureDisplayUnits.CELSIUS = 0;
 	//Characteristic.TemperatureDisplayUnits.FAHRENHEIT = 1;
 	this.temperatureDisplayUnits = Characteristic.TemperatureDisplayUnits.CELSIUS;
@@ -59,6 +59,18 @@ function Thermostat(log, config) {
 	this.targetHeatingCoolingState = Characteristic.TargetHeatingCoolingState.AUTO;
 
 	this.service = new Service.Thermostat(this.name);
+	this.service.getCharacteristic(Characteristic.CurrentTemperature)
+		.setProps({
+			minValue: this.minTemp,
+			maxValue: this.maxTemp,
+			minStep: 0.01
+		});
+	this.service.getCharacteristic(Characteristic.TargetTemperature)
+		.setProps({
+			minValue: this.minTemp,
+			maxValue: this.maxTemp,
+			minStep: 0.01
+		});
 }
 
 Thermostat.prototype = {
