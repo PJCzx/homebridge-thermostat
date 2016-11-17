@@ -14,7 +14,8 @@
             "name": "Thermostat Demo",
             "apiroute": "http://myurl.com",
             "maxTemp": 30,
-            "minTemp": 12
+            "minTemp": 12,
+            "enableHumidity": false
         }
     ],
 

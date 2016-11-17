@@ -20,6 +20,7 @@
 */
 
 
+
 var Service, Characteristic;
 var request = require("request");
 
@@ -59,18 +60,7 @@ function Thermostat(log, config) {
 	this.targetHeatingCoolingState = Characteristic.TargetHeatingCoolingState.AUTO;
 
 	this.service = new Service.Thermostat(this.name);
-	this.service.getCharacteristic(Characteristic.CurrentTemperature)
-		.setProps({
-			minValue: this.minTemp,
-			maxValue: this.maxTemp,
-			minStep: 0.01
-		});
-	this.service.getCharacteristic(Characteristic.TargetTemperature)
-		.setProps({
-			minValue: this.minTemp,
-			maxValue: this.maxTemp,
-			minStep: 0.01
-		});
+
 }
 
 Thermostat.prototype = {
@@ -343,7 +333,19 @@ Thermostat.prototype = {
 		this.service
 			.getCharacteristic(Characteristic.Name)
 			.on('get', this.getName.bind(this));
-
+		this.service.getCharacteristic(Characteristic.CurrentTemperature)
+			.setProps({
+				minValue: this.minTemp,
+				maxValue: this.maxTemp,
+				minStep: 1
+			});
+		this.service.getCharacteristic(Characteristic.TargetTemperature)
+			.setProps({
+				minValue: this.minTemp,
+				maxValue: this.maxTemp,
+				minStep: 1
+			});
+		this.log(this.minTemp);
 		return [informationService, this.service];
 	}
 };
