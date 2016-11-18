@@ -6,7 +6,7 @@ Supports thermostat devices on HomeBridge Platform
 
 1. Install homebridge using: npm install -g homebridge
 2. Install this plugin using: npm install -g homebridge-thermostat
-3. Update your configuration file. See sample-config.json in this repository for a sample. 
+3. Update your configuration file. See bellow for a sample. 
 
 # Configuration
 
@@ -24,7 +24,9 @@ Configuration sample:
             {
                 "accessory": "Thermostat",
                 "name": "Thermostat Demo",
-                "apiroute": "http://myurl.com"
+                "apiroute": "http://myurl.com",
+                "maxTemp": 30,
+                "minTemp": 12
             }
         ],
 
