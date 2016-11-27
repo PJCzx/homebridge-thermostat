@@ -46,4 +46,4 @@ The `apiroute` is used for two main calls: Get from the thermostat and set the t
 }
 ```
 
-2. GET `/targettemperature/{FLOAT_VALUE}`
+2. GET `/targetTemperature/{FLOAT_VALUE}`
