@@ -42,8 +42,11 @@ The `apiroute` is used for two main calls: Get from the thermostat and set the t
 {
     "targetTemperature":18,
     "temperature":"21.40",
-    "humidity":"69.20"
+    "humidity":"69.20",
+    "currentHeatingCoolingState": 1, # Pinned to HEAT
+    "targetState": "HEAT",
+    "targetStateCode": 1 # Pinned to AUTO
 }
 ```
 
-2. GET `/targettemperature/{FLOAT_VALUE}`
+2. GET `/targetTemperature/{FLOAT_VALUE}`
