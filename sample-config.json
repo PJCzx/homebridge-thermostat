@@ -1,7 +1,7 @@
 {
     "bridge": {
         "name": "Homebridge on Mac",
-        "username": "CC:22:9K:B3:CE:30",
+        "username": "CC:22:9C:B3:CE:30",
         "port": 51826,
         "pin": "031-45-154"
     },
@@ -10,9 +10,15 @@
 
     "accessories": [
         {
+            //required
             "accessory": "Thermostat",
             "name": "Thermostat Demo",
-            "apiroute": "http://myurl.com"
+            "apiroute": "http://myurl.com",
+            //optiona
+            "maxTemp": "26",
+            "minTemp": "15",
+            "username": "user",
+            "password": "pass"
         }
     ],
 
