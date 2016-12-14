@@ -25,8 +25,13 @@ Configuration sample:
                 "accessory": "Thermostat",
                 "name": "Thermostat Demo",
                 "apiroute": "http://myurl.com",
-                "maxTemp": 30,
-                "minTemp": 12
+                "maxTemp": 25,
+                "minTemp": 15
+                //optional
+                "maxTemp": "26",
+                "minTemp": "15",
+                "username": "user",
+                "password": "pass"
             }
         ],
 
@@ -49,4 +54,12 @@ The `apiroute` is used for two main calls: Get from the thermostat and set the t
 }
 ```
 
-2. GET `/targetTemperature/{FLOAT_VALUE}`
+2. GET `/targetTemperature`
+=======
+    "humidity":"69.20",
+    "currentHeatingCoolingState":"1",
+    "targetHeatingCoolingState":"3"
+}
+```
+
+3. GET `/targetTemperature/{FLOAT_VALUE}`

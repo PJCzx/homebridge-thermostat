@@ -10,7 +10,12 @@
         {
             "accessory": "Thermostat",
             "name": "Thermostat Demo",
-            "apiroute": "http://myurl.com"
+            "apiroute": "http://myurl.com",
+            //optional
+            "maxTemp": "26",
+            "minTemp": "15",
+            "username": "user",
+            "password": "pass"
         }
     ],
 
@@ -33,11 +38,21 @@ module.exports = function(homebridge){
 
 function Thermostat(log, config) {
 	this.log = log;
-	this.maxTemp = config.maxTemp || 38;
-	this.minTemp = config.minTemp || 12;
+	this.maxTemp = config.maxTemp || 25;
+	this.minTemp = config.minTemp || 15;
 	this.name = config.name;
 	this.apiroute = config.apiroute || "apiroute";
 	this.log(this.name, this.apiroute);
+	this.username = config.username || null;
+	this.password = config.password || null;
+	
+	if(this.username != null && this.password != null){
+		this.auth = {
+			user : this.username,
+			pass : this.password
+		};
+	}
+
 	//Characteristic.TemperatureDisplayUnits.CELSIUS = 0;
 	//Characteristic.TemperatureDisplayUnits.FAHRENHEIT = 1;
 	this.temperatureDisplayUnits = Characteristic.TemperatureDisplayUnits.CELSIUS;
@@ -47,7 +62,7 @@ function Thermostat(log, config) {
 	//Characteristic.CurrentHeatingCoolingState.OFF = 0;
 	//Characteristic.CurrentHeatingCoolingState.HEAT = 1;
 	//Characteristic.CurrentHeatingCoolingState.COOL = 2;
-	this.heatingCoolingState = Characteristic.CurrentHeatingCoolingState.OFF;
+	this.heatingCoolingState = Characteristic.CurrentHeatingCoolingState.AUTO;
 	this.targetTemperature = 21;
 	this.targetRelativeHumidity = 0.5;
 	this.heatingThresholdTemperature = 25;
@@ -88,11 +103,12 @@ Thermostat.prototype = {
 	getCurrentHeatingCoolingState: function(callback) {
 		this.log("getCurrentHeatingCoolingState from:", this.apiroute+"/status");
 		request.get({
-			url: this.apiroute+"/status"
+			url: this.apiroute+"/status",
+			auth : this.auth
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
-				var json = JSON.parse(body); //{"targetState":"AUTO","targetStateCode":6,"currentHeatingCoolingState":0,"targetTemperature":10,"temperature":12,"humidity":98}
+				var json = JSON.parse(body); //{targetHeatingCoolingState":3,"currentHeatingCoolingState":0,"targetTemperature":10,"temperature":12,"humidity":98}
 				this.log("currentHeatingCoolingState is %s", json.currentHeatingCoolingState);
 				this.currentHeatingCoolingState = json.currentHeatingCoolingState;
 				this.service.setCharacteristic(Characteristic.CurrentHeatingCoolingState, this.currentHeatingCoolingState);
@@ -107,16 +123,17 @@ Thermostat.prototype = {
 	getTargetHeatingCoolingState: function(callback) {
 		this.log("getTargetHeatingCoolingState from:", this.apiroute+"/status");
 		request.get({
-			url: this.apiroute+"/status"
+			url: this.apiroute+"/status",
+			auth : this.auth
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
-				var json = JSON.parse(body); //{"targetState":"AUTO","targetStateCode":6,"currentHeatingCoolingState":0,"targetTemperature":10,"temperature":12,"humidity":98}
-				this.log("targetState is %s", json.targetStateCode);
-				this.targetState = json.targetStateCode;
-				this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, this.targetStateCode);
+				var json = JSON.parse(body); //{"targetHeatingCoolingState":3,"currentHeatingCoolingState":0,"targetTemperature":10,"temperature":12,"humidity":98}
+				this.log("targetState is %s", json.targetHeatingCoolingState);
+				this.targetHeatingCoolingState = json.targetHeatingCoolingState;
+				this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, this.targetHeatingCoolingState);
 				
-				callback(null, this.targetStateCode); // success
+				callback(null, this.targetHeatingCoolingState); // success
 			} else {
 				this.log("Error getting TargetHeatingCoolingState: %s", err);
 				callback(err);
@@ -155,11 +172,12 @@ Thermostat.prototype = {
 			}
 			
 			request.get({
-				url: this.apiroute + action
+				url: this.apiroute + action,
+				auth : this.auth
 			}, function(err, response, body) {
 				if (!err && response.statusCode == 200) {
 					this.log("response success");
-					//this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
+					this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
 					this.targetHeatingCoolingState = value;
 					callback(null); // success
 				} else {
@@ -172,11 +190,12 @@ Thermostat.prototype = {
 	getCurrentTemperature: function(callback) {
 		this.log("getCurrentTemperature from:", this.apiroute+"/status");
 		request.get({
-			url: this.apiroute+"/status"
+			url: this.apiroute+"/status",
+			auth : this.auth
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
-				var json = JSON.parse(body); //{"state":"OFF","targetStateCode":5,"temperature":"18.10","humidity":"34.10"}
+				var json = JSON.parse(body); //{targetHeatingCoolingState":3,"currentHeatingCoolingState":0,"temperature":"18.10","humidity":"34.10"}
 				this.log("CurrentTemperature %s", json.temperature);
 				this.temperature = parseFloat(json.temperature);
 				callback(null, this.temperature); // success
@@ -189,11 +208,12 @@ Thermostat.prototype = {
 	getTargetTemperature: function(callback) {
 		this.log("getTargetTemperature from:", this.apiroute+"/status");
 		request.get({
-			url: this.apiroute+"/status"
+			url: this.apiroute+"/status",
+			auth : this.auth
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
-				var json = JSON.parse(body); //{"state":"OFF","targetStateCode":5,"temperature":"18.10","humidity":"34.10"}
+				var json = JSON.parse(body); //{targetHeatingCoolingState":3,"currentHeatingCoolingState":0"temperature":"18.10","humidity":"34.10"}
 				this.targetTemperature = parseFloat(json.targetTemperature);
 				this.log("Target temperature is %s", this.targetTemperature);
 				callback(null, this.targetTemperature); // success
@@ -206,7 +226,8 @@ Thermostat.prototype = {
 	setTargetTemperature: function(value, callback) {
 		this.log("setTargetTemperature from:", this.apiroute+"/targetTemperature/"+value);
 		request.get({
-			url: this.apiroute+"/targetTemperature/"+value
+			url: this.apiroute+"/targetTemperature/"+value,
+			auth : this.auth
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
@@ -233,7 +254,8 @@ Thermostat.prototype = {
 	getCurrentRelativeHumidity: function(callback) {
 		this.log("getCurrentRelativeHumidity from:", this.apiroute+"/status");
 		request.get({
-					url: this.apiroute+"/status"
+			url: this.apiroute+"/status",
+			auth : this.auth
 		}, function(err, response, body) {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
