@@ -261,7 +261,7 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{"state":"OFF","targetStateCode":5,"temperature":"18.10","humidity":"34.10"}
-				this.log("Humidity state is %s (%s)", json.targetState, json.humidity);
+				this.log("Humidity state is %s", json.humidity);
 				this.relativeHumidity = parseFloat(json.humidity);
 				callback(null, this.relativeHumidity); // success
 			} else {
