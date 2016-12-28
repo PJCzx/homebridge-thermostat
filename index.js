@@ -129,9 +129,10 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{"targetHeatingCoolingState":3,"currentHeatingCoolingState":0,"targetTemperature":10,"temperature":12,"humidity":98}
-				this.log("targetState is %s", json.targetHeatingCoolingState);
-				this.targetHeatingCoolingState = json.targetHeatingCoolingState;
-				this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, this.targetHeatingCoolingState);
+				this.log("TargetHeatingCoolingState received is %s", json.targetHeatingCoolingState, json.targetStateCode);
+				this.targetHeatingCoolingState = json.targetHeatingCoolingState !== undefined? json.targetHeatingCoolingState : json.targetStateCode;
+				this.log("TargetHeatingCoolingState is now %s", this.targetHeatingCoolingState);
+				//this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, this.targetHeatingCoolingState);
 				
 				callback(null, this.targetHeatingCoolingState); // success
 			} else {
@@ -177,7 +178,7 @@ Thermostat.prototype = {
 			}, function(err, response, body) {
 				if (!err && response.statusCode == 200) {
 					this.log("response success");
-					this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
+					//this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
 					this.targetHeatingCoolingState = value;
 					callback(null); // success
 				} else {
