@@ -43,6 +43,7 @@ Configuration sample:
 The `apiroute` is used for two main calls: Get from the thermostat and set the target temperature. Your API should provide
 
 1. GET `/status` 
+=======
 ```
 {
     "targetTemperature":18,
@@ -56,10 +57,16 @@ The `apiroute` is used for two main calls: Get from the thermostat and set the t
 
 2. GET `/targetTemperature`
 =======
-    "humidity":"69.20",
+```
+{
+    "humidity":"69.20",
     "currentHeatingCoolingState":"1",
     "targetHeatingCoolingState":"3"
 }
 ```
 
 3. GET `/targetTemperature/{FLOAT_VALUE}`
+=======
+```
+OK (201)
+```
