@@ -57,7 +57,7 @@ function Thermostat(log, config) {
 	//Characteristic.TemperatureDisplayUnits.FAHRENHEIT = 1;
 	this.temperatureDisplayUnits = Characteristic.TemperatureDisplayUnits.CELSIUS;
 	this.temperature = 19;
-	this.relativeHumidity = 0.70;
+	this.currentRelativeHumidity = 0.70;
 	// The value property of CurrentHeatingCoolingState must be one of the following:
 	//Characteristic.CurrentHeatingCoolingState.OFF = 0;
 	//Characteristic.CurrentHeatingCoolingState.HEAT = 1;
@@ -261,9 +261,9 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{"state":"OFF","targetStateCode":5,"temperature":"18.10","humidity":"34.10"}
-				this.log("Humidity state is %s", json.humidity);
-				this.relativeHumidity = parseFloat(json.humidity);
-				callback(null, this.relativeHumidity); // success
+				this.log("Humidity state is %s", json.currentRelativeHumidity);
+				this.currentRelativeHumidity = parseFloat(json.currentRelativeHumidity);
+				callback(null, this.currentRelativeHumidity); // success
 			} else {
 				this.log("Error getting state: %s", err);
 				callback(err);
