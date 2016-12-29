@@ -46,25 +46,15 @@ The `apiroute` is used for two main calls: Get from the thermostat and set the t
 =======
 ```
 {
-    "targetTemperature": 18,
-    "temperature": 21.40,
-    "humidity": 69.20,
-    "currentHeatingCoolingState": 1,
-    "targetHeatingCoolingState": 1
+    targetHeatingCoolingState: INT_VALUE_0_TO_3,
+    targetTemperature: FLOAT_VALUE,
+    currentHeatingCoolingState: INT_VALUE_0_TO_2,
+    currentTemperature: FLOAT_VALUE, //prev temperature
+    currentRelativeHumidity: FLOAT_VALUE_AS_PERCENTAGE //prev humidity
 }
 ```
 
-2. GET `/targetTemperature`
-=======
-```
-{
-    "humidity":"69.20",
-    "currentHeatingCoolingState":"1",
-    "targetHeatingCoolingState":"3"
-}
-```
-
-3. GET `/targetTemperature/{FLOAT_VALUE}`
+2. GET `/targetTemperature/{FLOAT_VALUE}`
 =======
 ```
 OK (201)

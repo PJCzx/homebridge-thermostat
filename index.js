@@ -56,7 +56,7 @@ function Thermostat(log, config) {
 	//Characteristic.TemperatureDisplayUnits.CELSIUS = 0;
 	//Characteristic.TemperatureDisplayUnits.FAHRENHEIT = 1;
 	this.temperatureDisplayUnits = Characteristic.TemperatureDisplayUnits.CELSIUS;
-	this.temperature = 19;
+	this.currentTemperature = 19;
 	this.currentRelativeHumidity = 0.70;
 	// The value property of CurrentHeatingCoolingState must be one of the following:
 	//Characteristic.CurrentHeatingCoolingState.OFF = 0;
@@ -79,21 +79,6 @@ function Thermostat(log, config) {
 }
 
 Thermostat.prototype = {
-	httpRequest: function(url, body, method, username, password, sendimmediately, callback) {
-		request({
-				url: url,
-				body: body,
-				method: method,
-				auth: {
-					user: username,
-					pass: password,
-					sendImmediately: sendimmediately
-				}
-			},
-			function(error, response, body) {
-				callback(error, response, body);
-			});
-	},
 	//Start
 	identify: function(callback) {
 		this.log("Identify requested!");
@@ -197,9 +182,9 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{targetHeatingCoolingState":3,"currentHeatingCoolingState":0,"temperature":"18.10","humidity":"34.10"}
-				this.log("CurrentTemperature %s", json.temperature);
-				this.temperature = parseFloat(json.temperature);
-				callback(null, this.temperature); // success
+				this.log("CurrentTemperature %s", json.currentTemperature);
+				this.currentTemperature = parseFloat(json.currentTemperature);
+				callback(null, this.currentTemperature); // success
 			} else {
 				this.log("Error getting state: %s", err);
 				callback(err);
