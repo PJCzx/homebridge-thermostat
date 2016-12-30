@@ -7,6 +7,7 @@ const int NEG_ALT_PIN = 12;
 const int LED_PIN = 13;
 
 unsigned long int loopcount;
+int lastCodeReceived;
 int currentHeatingCollingState;
 int targetHeatingCollingState;
 int targetTemperature;
@@ -26,9 +27,18 @@ void setup() {
   targetHeatingCollingState = 0;
   
   Serial.begin(9600);
-  mySwitch.enableReceive(0);  // Receiver on interrupt 0 => that is pin #2
+  mySwitch.enableReceive(0);  // Receiver on interrupt 0 => that is pin #D2
+  mySwitch.enableTransmit(5); //PIN D5
+
+  // Optional set pulse length.
+  // mySwitch.setPulseLength(320);
   
+  // Optional set protocol (default is 1, will work for most outlets)
+  // mySwitch.setProtocol(2);
   
+  // Optional set number of transmission repetitions.
+   mySwitch.setRepeatTransmit(7);
+
   pinMode(POS_ALT_PIN, OUTPUT);
   pinMode(NEG_ALT_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
@@ -50,6 +60,7 @@ void loop() {
     if (value == 0) {
       Serial.println("Unknown encoding");
     } else {
+      lastCodeReceived = mySwitch.getReceivedValue();
       Serial.print("Received ");
       Serial.print( mySwitch.getReceivedValue() );
       Serial.print(" / ");
@@ -81,11 +92,23 @@ void loop() {
         Serial.println("Unknown ID " + id);
       }
 
+      //Acknoledge
+      String as = id + "1111111111111111";
+      char akmessage[25];
+      as.toCharArray(akmessage, 25);
+      //for (int i = 0; i < as.length(); i++) {
+      //  akmessage[i] = as[i+1];
+      //}      
+      //Serial.println(akmessage);
+      //Serial.println(as);
+      //mySwitch.send("000000010000000000000000");
+      delay(2000);
+      Serial.println("-------------");
+      mySwitch.send(akmessage);
+      Serial.println("OK");
+      
     }
 
-    Serial.println("-------------");
-    delay(1000);//Wait 1 Sec before getting any other signal
-    
     mySwitch.resetAvailable();
   }
   
