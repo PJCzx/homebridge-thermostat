@@ -2,11 +2,29 @@
 
 RCSwitch mySwitch = RCSwitch();
 
-int POS_ALT_PIN = 11;
-int NEG_ALT_PIN = 12;
-int LED_PIN = 13;
+const int POS_ALT_PIN = 11;
+const int NEG_ALT_PIN = 12;
+const int LED_PIN = 13;
+
+unsigned long int loopcount;
+int currentHeatingCollingState;
+int targetHeatingCollingState;
+int targetTemperature;
+int currentTemperature;
+
+unsigned long int blinkCounter;
+int blinkAmount;
+
+void off(boolean useByThermostat = false);
+void comfort(boolean useByThermostat = false);
+void noFrost(boolean useByThermostat = false);
+void automatic(boolean useByThermostat = false);
 
 void setup() {
+  loopcount = 0;
+  currentHeatingCollingState = 0;
+  targetHeatingCollingState = 0;
+  
   Serial.begin(9600);
   mySwitch.enableReceive(0);  // Receiver on interrupt 0 => that is pin #2
   
@@ -20,8 +38,13 @@ void setup() {
 }
 
 void loop() {
-  if (mySwitch.available()) {
-    
+  doBlink();
+  if (loopcount >= 1000000) {
+    Serial.println("Alive");
+    displayVariables();
+    loopcount = 0;
+  } 
+  if (mySwitch.available()) {   
     int value = mySwitch.getReceivedValue();
     
     if (value == 0) {
@@ -60,37 +83,69 @@ void loop() {
 
     }
 
+    Serial.println("-------------");
+    delay(1000);//Wait 1 Sec before getting any other signal
+    
     mySwitch.resetAvailable();
   }
+  
+  loopcount++;
 }
 
-void comfort() {
+void comfort(boolean useByThermostat) {
+  if (!useByThermostat) targetHeatingCollingState = 1;
   //CLEAR INTERVALS IF NOT USED BY AUTO MODE
   Serial.println("Comfort: (HEATING: 1)");
   digitalWrite(POS_ALT_PIN, LOW);
   digitalWrite(NEG_ALT_PIN, LOW);
+  currentHeatingCollingState = 1;
+
+  displayVariables();
 }
 
-void off() {
+void off(boolean useByThermostat) {
+  if (!useByThermostat) targetHeatingCollingState = 0;
   //CLEAR INTERVALS IF NOT USED BY AUTO MODE
   Serial.println("OFF (OFF: 0)");
   digitalWrite(POS_ALT_PIN, HIGH);
   digitalWrite(NEG_ALT_PIN, LOW);
+  currentHeatingCollingState = 0;
+  
+  displayVariables();
 }
 
-void noFrost() {
+void noFrost(boolean useByThermostat) {
+  if (!useByThermostat) targetHeatingCollingState = 2;
   //CLEAR INTERVALS IF ANY
   Serial.println("NO FROST (COOLING: 2)");
   digitalWrite(POS_ALT_PIN, LOW);
   digitalWrite(NEG_ALT_PIN, HIGH);
+  currentHeatingCollingState = 2;
+
+  displayVariables();
 }
 
 void automatic(String targetTemperature) { //INT?
+  targetHeatingCollingState = 3;
   //CLEAR INTERVALS IF ANY
   Serial.println("Command 4 : AUTO (besoin temperature + emmeteur)");
-  Serial.print("targetTemperature: ");
+
+  if(loopcount%2 == 0) comfort(true);
+  else noFrost(true);
+  
+  displayVariables();
+}
+
+void displayVariables() {
+  Serial.print("targetHeatingCollingState is ");
+  Serial.println(targetHeatingCollingState);
+  Serial.print("currentHeatingCollingState is: ");
+  Serial.println(currentHeatingCollingState);
+  Serial.print("targetTemperature is ");
   Serial.println(targetTemperature); //NEED TO BE CONVERTED
-  Serial.print("currentTemperature: DHT22 + EMITTER"); //NEED DHT22 + EMMITER
+  Serial.print("currentTemperature is: ");
+  Serial.println("DHT22 + EMITTER"); //NEED DHT22 + EMMITER 
+  blinkLed(targetHeatingCollingState);
 }
 
 
@@ -115,10 +170,22 @@ static char * dec2binWzerofill(unsigned long Dec, unsigned int bitLength) {
   return bin;
 }
 
-void blinkLed(int blinks) { 
-  for (int i = 0; i < blinks; i++) {
-      digitalWrite(LED_PIN, HIGH);
-      delay(300);
-      digitalWrite(LED_PIN, LOW);
-    }
+void blinkLed(int blinks) {
+  blinkAmount = blinks;
+  blinkCounter = 0;
+}
+
+void doBlink() {
+  int blinkDuration = 3000;
+  
+  if(blinkAmount >= 0 && blinkCounter >= 0             && blinkCounter < blinkDuration  ) digitalWrite(LED_PIN, HIGH);
+  if(blinkAmount >= 0 && blinkCounter >= blinkDuration && blinkCounter < blinkDuration*2) digitalWrite(LED_PIN, LOW);
+  if(blinkCounter % (blinkDuration*2) == 0) {
+    blinkAmount--;
+    blinkCounter = 0;
+  }
+  //Serial.println(blinkCounter);
+  //Serial.println(blinkAmount);
+  
+  blinkCounter++;
 }
