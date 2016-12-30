@@ -2,13 +2,17 @@ var rpi433    = require('rpi-433');
 
 module.exports = function WirelessAcova (TX_GPIO, RX_GPIO, DHT_GPIO) {
   return {
-    rfEmitter: rpi433.emitter({
-          pin: 4 || TX_GPIO
-    }),
-    rfSniffer: rpi433.sniffer({
-        pin: 2 || RX_GPIO,  
-        debounceDelay: 500
-    }),
+    init: function() {
+      this.rfEmitter = rpi433.emitter({
+            pin: TX_GPIO || 4
+      });
+
+      this.rfSniffer = rpi433.sniffer({
+          pin: RX_GPIO || 2,  
+          debounceDelay: 500
+      })
+      return this;
+    },
     decToBinaryHelper: function (dec, bits) {
       var binary = (dec).toString(2);
       if (bits !== undefined && binary.length > bits) throw new Error("Value exeeded allowed bits.");
@@ -16,15 +20,16 @@ module.exports = function WirelessAcova (TX_GPIO, RX_GPIO, DHT_GPIO) {
       return binary
     },
     encode: function (id, command, value) {
-      return
-        this.decToBinaryHelper(id || 1, 8) +
-        this.decToBinaryHelper(0, 5) +
-        this.decToBinaryHelper(command || 1, 4) +
-        this.decToBinaryHelper(value || 1, 7); 
+      return this.decToBinaryHelper(id || 1, 8) + this.decToBinaryHelper(0, 5) + this.decToBinaryHelper(command || 1, 4) + this.decToBinaryHelper(value || 1, 7); 
     },
-    send: function(id, command, value, callback) {
+    send: function (id, command, value, callback) {
+      console.log(id, command, value);
+      
       var binaryValue = this.encode(id, command, value);
+      console.log(binaryValue);
+
       var decimalValue = parseInt(binaryValue, 2);
+      console.log(decimalValue);
       var timeout;
 
       this.rfSniffer.on('data', function (data) {
@@ -37,25 +42,20 @@ module.exports = function WirelessAcova (TX_GPIO, RX_GPIO, DHT_GPIO) {
         if(rid == id) {
           console.log("Acknowledge received");
           clearTimeout(timeout);
-          callback();
+          if(callback) callback();
         } else {
           console.log("Received another signal, possible id: " + id + '. Code received: '+data.code+' pulse length : '+data.pulseLength);
         }
 
-      });
+      }.bind(this));
 
       var repeat = function() {
         this.rfEmitter.sendCode(decimalValue, function(error, stdout) {
             if(!error) console.log("Sent: " + stdout);
         });
         timeout = setTimeout(repeat, 2000);
-      }
+      }.bind(this);
       repeat();
     }
   }
-}
-
-
-var wirelessAcova = require('WirelessAcova');
-wirelessAcova.send(1, 1);
-
+};
