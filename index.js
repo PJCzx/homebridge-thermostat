@@ -24,8 +24,6 @@
 
 */
 
-
-var WirelessThermostat = require('./WirelessThermostat.js');
 var Service, Characteristic;
 var request = require("request");
 
@@ -46,10 +44,7 @@ function Thermostat(log, config) {
 	this.username = config.username || null;
 	this.password = config.password || null;
 
-	this.enableWT = config.wirelessThermostat == true ? true : false;
-	if(this.enableWT == true) this.log("enableWT enabled");
-	this.wirelessThermostat = this.enableWT == true ? new WirelessThermostat().init() : undefined;
-	if(this.enableWT == true) this.log(new WirelessThermostat(), new WirelessThermostat().init(), this.wirelessThermostat);
+	this.wirelessThermostat = config.wirelessThermostat == true ? true : false;
 
 	if(this.username != null && this.password != null){
 		this.auth = {
@@ -134,7 +129,7 @@ Thermostat.prototype = {
 		this.log("implement getTargetHeatingCoolingState for WirelessThermostat");
 	},
 	setTargetHeatingCoolingState: function(value, callback) {
-		if(this.wirelessThermostat === undefined) {
+		if(this.wirelessThermostat !== true) {
 
 			if(value === undefined) {
 				callback(); //Some stuff call this without value doing shit with the rest
@@ -182,26 +177,20 @@ Thermostat.prototype = {
 				}.bind(this));
 			}
 		} else {
-
-			id = 1;
-			command = value;
-			value = undefined;
-
-			//this.wirelessThermostat.send(id, command, undefined, callback); //value = command
 			request.get({
-					url: "http://192.168.0.50:1234/1/"+value+"/undefined",
-					auth : this.auth
-				}, function(err, response, body) {
-					if (!err && response.statusCode == 200) {
-						this.log("response success");
-						//this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
-						this.targetHeatingCoolingState = value;
-						callback(null); // success
-					} else {
-						this.log("Error getting state: %s", err);
-						callback(err);
-					}
-				}.bind(this));
+				url: "http://192.168.0.50:1234/1/"+value+"/0",
+				auth : this.auth
+			}, function(err, response, body) {
+				if (!err && response.statusCode == 200) {
+					this.log("response success");
+					//this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
+					this.targetHeatingCoolingState = value;
+					callback(null); // success
+				} else {
+					this.log("Error getting state: %s", err);
+					callback(err);
+				}
+			}.bind(this));
 		}
 	},
 	getCurrentTemperature: function(callback) {
