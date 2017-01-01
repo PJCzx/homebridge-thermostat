@@ -155,10 +155,14 @@ void sendResponse(int id, int disp, int command, int value) {
     String as = String(dec2binWzerofill(id, BITS_ID)) + String(dec2binWzerofill(disp, BITS_AVAILABLE)) + String(dec2binWzerofill(command, BITS_COMMAND)) + String(dec2binWzerofill(value, BITS_VALUE));
     char akmessage[BITS_ID + BITS_AVAILABLE + BITS_COMMAND + BITS_VALUE +1];
     as.toCharArray(akmessage, BITS_ID + BITS_AVAILABLE + BITS_COMMAND + BITS_VALUE +1);
-    //Wait before answering
+    //Wait before answering   
     delay(RESPONSE_DELAY);
     mySwitch.send(akmessage);
-    Serial.println("OK");
+    Serial.print("OK after ");
+    Serial.print(RESPONSE_DELAY);
+    Serial.print("ms (Response: ");
+    Serial.print(akmessage);
+    Serial.println(")");
 }
 
 void comfort(boolean useByThermostat) {
@@ -182,7 +186,7 @@ void off(boolean useByThermostat) {
   currentHeatingCollingState = 0;
   
   if (!useByThermostat) displayVariables();
-  if (!useByThermostat) sendResponse();
+  if (!useByThermostat) sendResponse(ID, 1); //because response == initial order wont be taken in consideration
 }
 
 void noFrost(boolean useByThermostat) {
@@ -213,10 +217,10 @@ void autoChoseHeatingOrCooling() {
   Serial.print(" and target is ");
   Serial.print(targetTemperature);
   if(currentTemperature >= targetTemperature + TEMPERATURE_DELTA) {
-    Serial.println(". Lets coll down a little bit");
+    Serial.print(". Lets coll down a little bit >");
     noFrost(true);
   } else if(currentTemperature <= targetTemperature - TEMPERATURE_DELTA) {
-    Serial.println(". Lets warm up a little bit");
+    Serial.print(". Lets warm up a little bit > ");
     comfort(true);
   } else {
     Serial.println(". Great, keep it like this.");
@@ -248,27 +252,31 @@ void getCurrentTemperature() {
   Serial.print("getCurrentTemperature: ");
   Serial.println(currentTemperature);
   displayVariables();
-  sendResponse(ID, 0, COMMAND_OK_WITH_VALUE, currentTemperature);
+  sendResponse(ID, 0, COMMAND_OK_WITH_VALUE, currentTemperature*10);
 }
 void getCurrentRelativeHumidity() {
   Serial.print("getCurrentRelativeHumidity: ");
   Serial.println(currentRelativeHumidity);
   displayVariables();
-  sendResponse(ID, 0, COMMAND_OK_WITH_VALUE, currentRelativeHumidity);
+  sendResponse(ID, 0, COMMAND_OK_WITH_VALUE, currentRelativeHumidity*10);
 }
 
 void displayVariables() {
   Serial.println("--------------------------------------");
-  Serial.print("targetHeatingCollingState is ");
+  Serial.print("targetHeatingCollingState:\t");
   Serial.println(targetHeatingCollingState);
-  Serial.print("currentHeatingCollingState is: ");
+  Serial.print("currentHeatingCollingState:\t");
   Serial.println(currentHeatingCollingState);
-  Serial.print("targetTemperature is ");
-  Serial.println(targetTemperature); //NEED TO BE CONVERTED
-  Serial.print("currentTemperature is: ");
+  Serial.print("targetTemperature:\t\t");
+  Serial.print(targetTemperature);
+  Serial.println("°C");
+  Serial.print("currentTemperature:\t\t");
   Serial.print(DHT.temperature);
   Serial.println("°C");
-  Serial.print("currentRelativeHumidity is: ");
+  Serial.print("targetRelativeHumidity:\t\t");
+  Serial.print(targetRelativeHumidity);  
+  Serial.println("%");
+  Serial.print("currentRelativeHumidity:\t");
   Serial.print(DHT.humidity);  
   Serial.println("%");
   Serial.println("--------------------------------------");
@@ -334,13 +342,13 @@ void updateDHTData(boolean debug) {
         if (debug) Serial.print("OK\t");
         break;
     case DHTLIB_ERROR_CHECKSUM:
-        Serial.print("Checksum error\t");
+        Serial.println("DHT22 Checksum error\t");
         break;
     case DHTLIB_ERROR_TIMEOUT:
-        Serial.print("Time out error\t");
+        Serial.println("DHT22 Time out error\t");
         break;
     default:
-        Serial.print("Unknown error\t");
+        Serial.println("DHT22 Unknown error\t");
         break;
     }
     // DISPLAY DATA

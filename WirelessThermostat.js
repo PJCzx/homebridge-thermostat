@@ -1,7 +1,12 @@
 var rpi433    = require('rpi-433');
 
-module.exports = function WirelessAcova (TX_GPIO, RX_GPIO, DHT_GPIO) {
+module.exports = function WirelessAcova (TX_GPIO, RX_GPIO) {
   return {
+    COMMAND_OK_WITH_VALUE: 31,
+    BITS_ID: 8,
+    BITS_AVAILABLE: 2,
+    BITS_COMMAND: 5,
+    BITS_VALUE: 9,
     init: function() {
       this.rfEmitter = rpi433.emitter({
             pin: TX_GPIO || 4
@@ -19,43 +24,68 @@ module.exports = function WirelessAcova (TX_GPIO, RX_GPIO, DHT_GPIO) {
       else while (binary.length < bits) binary = "0"+ binary;
       return binary
     },
-    encode: function (id, command, value) {
-      return this.decToBinaryHelper(id || 1, 8) + this.decToBinaryHelper(0, 5) + this.decToBinaryHelper(command || 1, 4) + this.decToBinaryHelper(value || 1, 7); 
+    binaryToDecHelper: function (binaryValue) {
+      return parseInt(binaryValue, 2);
+    },
+    encode: function (id, availalbe,command, value) {
+      return this.decToBinaryHelper(id, this.BITS_ID) + this.decToBinaryHelper(availalbe, this.BITS_AVAILABLE) + this.decToBinaryHelper(command, this.BITS_COMMAND) + this.decToBinaryHelper(value, this.BITS_VALUE); 
+    },
+    decode: function(binaryValue) {
+        var rb = this.decToBinaryHelper(binaryValue, this.BITS_ID + this.BITS_AVAILABLE + this.BITS_COMMAND + this.BITS_VALUE);
+        var position = 0;
+
+        var rbid = rb.substring(position, position + this.BITS_ID); position += this.BITS_ID;
+        var rbavailable = rb.substring(position, position + this.BITS_AVAILABLE); position += this.BITS_AVAILABLE;
+        var rbcommand = rb.substring(position, position + this.BITS_COMMAND); position += this.BITS_COMMAND;
+        var rbvalue = rb.substring(position, position + this.BITS_VALUE); position += this.BITS_VALUE;
+
+        console.log("Received (binary)", rbid, rbavailable, rbcommand, rbvalue);
+
+        var decoded = {
+          id: this.binaryToDecHelper(rbid),
+          available: this.binaryToDecHelper(rbavailable),
+          command: this.binaryToDecHelper(rbcommand),
+          value: this.binaryToDecHelper(rbvalue)
+        };
+        
+        console.log("Received (dec)", decoded.id, decoded.available, decoded.command, decoded.value);
+
+        return decoded;
     },
     send: function (id, command, value, callback) {
-      console.log(id, command, value);
+      console.log("About to send", id, command, value);
       
-      var binaryValue = this.encode(id, command, value);
-      console.log(binaryValue);
+      var binaryValue = this.encode(id, 0, command, value || 0);
+      var decimalValue = this.binaryToDecHelper(binaryValue);
 
-      var decimalValue = parseInt(binaryValue, 2);
-      console.log(decimalValue);
+      console.log("As this binay", binaryValue, "(" + decimalValue + ") DEC");
+
       var timeout;
 
       this.rfSniffer.on('data', function (data) {
         if(data.code == decimalValue) { return; }
         
-        var rb = this.decToBinaryHelper(data.code, 24);
-        var rid = rb.substring(0, 8);
-        //console.log("Ack", data.code, rb, id)
+        var response = this.decode(data.code)
         
-        if(rid == id) {
-          console.log("Acknowledge received");
+        if(response.id == id) {
           clearTimeout(timeout);
-          if(callback) callback();
+          if(callback) callback(response.command == this.COMMAND_OK_WITH_VALUE ? response.value : undefined);
         } else {
-          console.log("Received another signal, possible id: " + id + '. Code received: '+data.code+' pulse length : '+data.pulseLength);
+          console.log("Received another signal:", data.code, "pulse length :", data.pulseLength);
         }
 
       }.bind(this));
 
       var repeat = function() {
         this.rfEmitter.sendCode(decimalValue, function(error, stdout) {
-            if(!error) console.log("Sent: " + stdout);
+            //if(!error)console.log("Sent: " + stdout);
         });
         timeout = setTimeout(repeat, 2000);
       }.bind(this);
       repeat();
+    },
+    clean: function(){
+      this.rfSniffer.removeListener('data', function(){console.log("eventLstener removed");});
     }
   }
 };
