@@ -15,8 +15,12 @@ app.get('/', function (req, res) {
   var command = parseInt(req.params.command);
   var value = parseInt(req.params.value)
   wirelessThermostat.send(id, command, value, function(value) {
-    if (value) res.send({value: value}});
-    else res.sendStatus(200);
+    if (value !== undefined) {
+      console.log("The value is", value);
+      res.send({value: value});
+    } else {
+      res.sendStatus(200);
+    }
   });
   
 });
