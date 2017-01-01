@@ -10,14 +10,13 @@ app.get('/', function (req, res) {
   res.sendStatus(200);
 })
 .get('/:id/:command/:value', function (req, res) {
-  console.log("in");
-  //res.sendStatus(200);
   
   var id = parseInt(req.params.id);
   var command = parseInt(req.params.command);
   var value = parseInt(req.params.value)
-  wirelessThermostat.send(id, command, value, function() {
-    res.sendStatus(200);
+  wirelessThermostat.send(id, command, value, function(value) {
+    if (value) res.send({value: value}});
+    else res.sendStatus(200);
   });
   
 });

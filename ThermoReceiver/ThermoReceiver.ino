@@ -271,13 +271,13 @@ void displayVariables() {
   Serial.print(targetTemperature);
   Serial.println("°C");
   Serial.print("currentTemperature:\t\t");
-  Serial.print(DHT.temperature);
+  Serial.print(currentTemperature);
   Serial.println("°C");
   Serial.print("targetRelativeHumidity:\t\t");
   Serial.print(targetRelativeHumidity);  
   Serial.println("%");
   Serial.print("currentRelativeHumidity:\t");
-  Serial.print(DHT.humidity);  
+  Serial.print(currentRelativeHumidity);  
   Serial.println("%");
   Serial.println("--------------------------------------");
   
@@ -334,7 +334,10 @@ void updateDHTData(boolean debug) {
     int chk = DHT.read22(DHT22_PIN);
     uint32_t stop = micros();
 
-     if (debug) Serial.print("DHT22\t");
+    currentTemperature = DHT.temperature;
+    currentRelativeHumidity = DHT.humidity;
+
+    if (debug) Serial.print("DHT22\t");
     
     switch (chk)
     {
@@ -343,12 +346,18 @@ void updateDHTData(boolean debug) {
         break;
     case DHTLIB_ERROR_CHECKSUM:
         Serial.println("DHT22 Checksum error\t");
+        currentTemperature = 0;
+        currentRelativeHumidity = 0;
         break;
     case DHTLIB_ERROR_TIMEOUT:
         Serial.println("DHT22 Time out error\t");
+        currentTemperature = 0;
+        currentRelativeHumidity = 0;
         break;
     default:
         Serial.println("DHT22 Unknown error\t");
+        currentTemperature = 0;
+        currentRelativeHumidity = 0;
         break;
     }
     // DISPLAY DATA
@@ -358,9 +367,6 @@ void updateDHTData(boolean debug) {
     if (debug) Serial.print("\t\t");
     if (debug) Serial.print(stop - start);
     if (debug) Serial.println();
-
-    currentTemperature = DHT.temperature;
-    currentRelativeHumidity = DHT.humidity;
 }
 
 int readBinaryString(char *s) {
@@ -376,7 +382,7 @@ int readBinaryString(char *s) {
 int binaryStringToInt(String aString) {
   int charArraySize = aString.length() + 1;
   char aCharArray[charArraySize];
-  aString.toCharArray(aCharArray, 25);
+  aString.toCharArray(aCharArray, charArraySize);
   return readBinaryString(aCharArray);
 }
 

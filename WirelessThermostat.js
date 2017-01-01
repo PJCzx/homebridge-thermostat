@@ -19,16 +19,16 @@ module.exports = function WirelessAcova (TX_GPIO, RX_GPIO) {
       return this;
     },
     decToBinaryHelper: function (dec, bits) {
-      var binary = (dec).toString(2);
+      var binary = (dec >>> 0).toString(2);
       if (bits !== undefined && binary.length > bits) throw new Error("Value exeeded allowed bits.");
-      else while (binary.length < bits) binary = "0"+ binary;
+      else while (binary.length < bits) binary = "0" + binary;
       return binary
     },
     binaryToDecHelper: function (binaryValue) {
       return parseInt(binaryValue, 2);
     },
-    encode: function (id, availalbe,command, value) {
-      return this.decToBinaryHelper(id, this.BITS_ID) + this.decToBinaryHelper(availalbe, this.BITS_AVAILABLE) + this.decToBinaryHelper(command, this.BITS_COMMAND) + this.decToBinaryHelper(value, this.BITS_VALUE); 
+    encode: function (id, availabe, command, value) {
+      return this.decToBinaryHelper(id, this.BITS_ID) + this.decToBinaryHelper(availabe, this.BITS_AVAILABLE) + this.decToBinaryHelper(command, this.BITS_COMMAND) + this.decToBinaryHelper(value, this.BITS_VALUE); 
     },
     decode: function(binaryValue) {
         var rb = this.decToBinaryHelper(binaryValue, this.BITS_ID + this.BITS_AVAILABLE + this.BITS_COMMAND + this.BITS_VALUE);
@@ -53,12 +53,11 @@ module.exports = function WirelessAcova (TX_GPIO, RX_GPIO) {
         return decoded;
     },
     send: function (id, command, value, callback) {
-      console.log("About to send", id, command, value);
       
       var binaryValue = this.encode(id, 0, command, value || 0);
       var decimalValue = this.binaryToDecHelper(binaryValue);
 
-      console.log("As this binay", binaryValue, "(" + decimalValue + ") DEC");
+      console.log("Sending", id, command, value, "As this binay", binaryValue, "(" + decimalValue + ") DEC");
 
       var timeout;
 
@@ -78,7 +77,7 @@ module.exports = function WirelessAcova (TX_GPIO, RX_GPIO) {
 
       var repeat = function() {
         this.rfEmitter.sendCode(decimalValue, function(error, stdout) {
-            //if(!error)console.log("Sent: " + stdout);
+            if(!error)console.log("Sent: " + stdout);
         });
         timeout = setTimeout(repeat, 2000);
       }.bind(this);
