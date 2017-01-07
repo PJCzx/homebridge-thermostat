@@ -35,19 +35,24 @@ const int HEATING_COOLING_STATE_AUTO                 = 3;
 unsigned long int loopcount;
 int lastCodeReceived;
 
-int currentHeatingCollingState;
-int targetHeatingCollingState;
+int currentHeatingCoolingState;
+int targetHeatingCoolingState;
 double targetTemperature;
 double currentTemperature;
 double targetRelativeHumidity;
 double currentRelativeHumidity;
 
+String inputString = "";         // a string to hold incoming data
+boolean stringComplete = false;  // whether the string is complete
+
 unsigned long int blinkCounter;
 int blinkAmount;
 void updateDHTData(boolean debug = false);
 void sendResponse(int id = ID, int disp = 0, int command = 0 , int value = 0);
+void executeCommand(int id = ID, int command = 0, int value = 0);
 
 void off(boolean useByThermostat = false);
+void eco(boolean useByThermostat = false);
 void comfort(boolean useByThermostat = false);
 void noFrost(boolean useByThermostat = false);
 void automatic();
@@ -55,9 +60,9 @@ void automatic();
 
 void setup() {
   loopcount = 0;
-  currentHeatingCollingState = 0;
+  currentHeatingCoolingState = 0;
   
-  targetHeatingCollingState = HEATING_COOLING_STATE_AUTO;
+  targetHeatingCoolingState = HEATING_COOLING_STATE_AUTO;
   targetTemperature = 20;
   targetRelativeHumidity = 30;
   updateDHTData();
@@ -88,9 +93,18 @@ void loop() {
   if (loopcount >= 1000000) {
     updateDHTData();
     displayVariables();
-    if (targetHeatingCollingState == HEATING_COOLING_STATE_AUTO) autoChoseHeatingOrCooling();
+    if (targetHeatingCoolingState == HEATING_COOLING_STATE_AUTO) autoChoseHeatingOrCooling();
     loopcount = 0;
   } 
+  serialEvent(); //call the function
+  // print the string when a newline arrives:
+  if (stringComplete) {
+    Serial.println(inputString);
+    executeCommand(inputString.toInt());
+    // clear the string:
+    inputString = "";
+    stringComplete = false;
+  }
   if (mySwitch.available()) {
       lastCodeReceived = mySwitch.getReceivedValue();
       Serial.print("Received ");
@@ -123,22 +137,7 @@ void loop() {
       
       if (id == ID) {
         Serial.println("ID Recognized");
-
-        if (command == COMMAND_SET_TARGET_HEATING_COOLING_STATE) {
-               if (value == HEATING_COOLING_STATE_OFF) off();
-          else if (value == HEATING_COOLING_STATE_HEATING) comfort();
-          else if (value == HEATING_COOLING_STATE_COOLING) noFrost();
-          else if (value == HEATING_COOLING_STATE_AUTO) automatic();
-        }
-        else if (command == COMMAND_SET_TARGET_TEMPERATURE) setTargetTemperature(value);
-        else if (command == COMMAND_SET_TARGET_RELATIVE_HUMIDITY) setTargetRelativeHumidity(value);
-        
-        else if (command == COMMAND_GET_CURRENT_HEATING_COOLING_STATE) getCurrentHeatingCollingState();
-        else if (command == COMMAND_GET_CURRENT_TEMPERATURE) getCurrentTemperature();
-        else if (command == COMMAND_GET_CURRENT_RELATIVE_HUMIDITY) getCurrentRelativeHumidity();
-        else Serial.println("Unknown Command: " + command);
-
-        
+        executeCommand(command);
       } else {
         Serial.println("Unknown ID " + id);
       }
@@ -165,44 +164,72 @@ void sendResponse(int id, int disp, int command, int value) {
     Serial.println(")");
 }
 
+void executeCommand(int id, int command, int value) {
+    if (command == COMMAND_SET_TARGET_HEATING_COOLING_STATE) {
+             if (value == HEATING_COOLING_STATE_OFF) off();
+        else if (value == HEATING_COOLING_STATE_HEATING) comfort();
+        else if (value == HEATING_COOLING_STATE_COOLING) noFrost();
+        else if (value == HEATING_COOLING_STATE_AUTO) automatic();
+      }
+    else if (command == COMMAND_SET_TARGET_TEMPERATURE) setTargetTemperature(value);
+    else if (command == COMMAND_SET_TARGET_RELATIVE_HUMIDITY) setTargetRelativeHumidity(value);
+    
+    else if (command == COMMAND_GET_CURRENT_HEATING_COOLING_STATE) getcurrentHeatingCoolingState();
+    else if (command == COMMAND_GET_CURRENT_TEMPERATURE) getCurrentTemperature();
+    else if (command == COMMAND_GET_CURRENT_RELATIVE_HUMIDITY) getCurrentRelativeHumidity();
+    else Serial.println("Unknown Command: " + command);
+}
+
 void comfort(boolean useByThermostat) {
-  if (!useByThermostat) targetHeatingCollingState = 1;
+  if (!useByThermostat) targetHeatingCoolingState = 1;
   //CLEAR INTERVALS IF NOT USED BY AUTO MODE
   Serial.println("COMFORT - HEATING (1)");
   digitalWrite(POS_ALT_PIN, LOW);
   digitalWrite(NEG_ALT_PIN, LOW);
-  currentHeatingCollingState = 1;
+  currentHeatingCoolingState = 1;
 
   if (!useByThermostat) displayVariables();
   if (!useByThermostat) sendResponse();
 }
 
 void off(boolean useByThermostat) {
-  if (!useByThermostat) targetHeatingCollingState = 0;
+  if (!useByThermostat) targetHeatingCoolingState = 0;
   //CLEAR INTERVALS IF NOT USED BY AUTO MODE
   Serial.println("OFF - OFF (0)");
   digitalWrite(POS_ALT_PIN, HIGH);
   digitalWrite(NEG_ALT_PIN, LOW);
-  currentHeatingCollingState = 0;
+  currentHeatingCoolingState = 0;
   
   if (!useByThermostat) displayVariables();
   if (!useByThermostat) sendResponse(ID, 1); //because response == initial order wont be taken in consideration
 }
 
 void noFrost(boolean useByThermostat) {
-  if (!useByThermostat) targetHeatingCollingState = 2;
+  if (!useByThermostat) targetHeatingCoolingState = 2;
   //CLEAR INTERVALS IF ANY
   Serial.println("NO FROST - COOLING (2)");
   digitalWrite(POS_ALT_PIN, LOW);
   digitalWrite(NEG_ALT_PIN, HIGH);
-  currentHeatingCollingState = 2;
+  currentHeatingCoolingState = 2;
+
+  if (!useByThermostat) displayVariables();
+  if (!useByThermostat) sendResponse();
+}
+
+void eco(boolean useByThermostat) {
+  if (!useByThermostat) targetHeatingCoolingState = 2; //a bit fake cause I dont know wat eco does
+  //CLEAR INTERVALS IF NOT USED BY AUTO MODE
+  Serial.println("ACOVA ECO - COOLING (2)");
+  digitalWrite(POS_ALT_PIN, HIGH);
+  digitalWrite(NEG_ALT_PIN, HIGH);
+  currentHeatingCoolingState = 2;
 
   if (!useByThermostat) displayVariables();
   if (!useByThermostat) sendResponse();
 }
 
 void automatic() {
-  targetHeatingCollingState = 3;
+  targetHeatingCoolingState = 3;
   Serial.println("AUTO - AUTO (4)");
 
   autoChoseHeatingOrCooling();
@@ -217,7 +244,7 @@ void autoChoseHeatingOrCooling() {
   Serial.print(" and target is ");
   Serial.print(targetTemperature);
   if(currentTemperature >= targetTemperature + TEMPERATURE_DELTA) {
-    Serial.print(". Lets coll down a little bit >");
+    Serial.print(". Lets cool down a little bit >");
     noFrost(true);
   } else if(currentTemperature <= targetTemperature - TEMPERATURE_DELTA) {
     Serial.print(". Lets warm up a little bit > ");
@@ -242,11 +269,11 @@ void setTargetRelativeHumidity(int value) {
   sendResponse();
 }
         
-void getCurrentHeatingCollingState() {
-  Serial.print("getCurrentHeatingCollingState: ");
-  Serial.println(currentHeatingCollingState);
+void getcurrentHeatingCoolingState() {
+  Serial.print("getcurrentHeatingCoolingState: ");
+  Serial.println(currentHeatingCoolingState);
   displayVariables();
-  sendResponse(ID, 0, COMMAND_OK_WITH_VALUE, currentHeatingCollingState);
+  sendResponse(ID, 0, COMMAND_OK_WITH_VALUE, currentHeatingCoolingState);
 }
 void getCurrentTemperature() {
   Serial.print("getCurrentTemperature: ");
@@ -263,10 +290,10 @@ void getCurrentRelativeHumidity() {
 
 void displayVariables() {
   Serial.println("--------------------------------------");
-  Serial.print("targetHeatingCollingState:\t");
-  Serial.println(targetHeatingCollingState);
-  Serial.print("currentHeatingCollingState:\t");
-  Serial.println(currentHeatingCollingState);
+  Serial.print("targetHeatingCoolingState:\t");
+  Serial.println(targetHeatingCoolingState);
+  Serial.print("currentHeatingCoolingState:\t");
+  Serial.println(currentHeatingCoolingState);
   Serial.print("targetTemperature:\t\t");
   Serial.print(targetTemperature);
   Serial.println("°C");
@@ -281,7 +308,7 @@ void displayVariables() {
   Serial.println("%");
   Serial.println("--------------------------------------");
   
-  blinkLed(targetHeatingCollingState);
+  blinkLed(targetHeatingCoolingState);
 }
 
 
@@ -386,3 +413,17 @@ int binaryStringToInt(String aString) {
   return readBinaryString(aCharArray);
 }
 
+
+void serialEvent() {
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char) Serial.read();
+    // add it to the inputString:
+    inputString += inChar;
+    // if the incoming character is a newline, set a flag
+    // so the main loop can do something about it:
+    if (inChar == '\n') {
+      stringComplete = true;
+    }
+  }
+}
