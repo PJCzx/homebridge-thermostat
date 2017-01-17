@@ -69,6 +69,7 @@ module.exports = function WirelessAcova (TX_GPIO, RX_GPIO) {
         if(response.id == id) {
           clearTimeout(timeout);
           if(callback) callback(response.command == this.COMMAND_OK_WITH_VALUE ? response.value : undefined);
+          this.rfSniffer.removeListener('data');
         } else {
           console.log("Received another signal:", data.code, "pulse length :", data.pulseLength);
         }
@@ -77,7 +78,8 @@ module.exports = function WirelessAcova (TX_GPIO, RX_GPIO) {
 
       var repeat = function() {
         this.rfEmitter.sendCode(decimalValue, function(error, stdout) {
-            if(!error)console.log("Sent: " + stdout);
+            if(error) console.log("An error occured");
+            console.log("Sent: " + stdout);
         });
         timeout = setTimeout(repeat, 2000);
       }.bind(this);
