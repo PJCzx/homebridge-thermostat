@@ -38,9 +38,9 @@ int lastCodeReceived;
 int currentHeatingCoolingState;
 int targetHeatingCoolingState;
 double targetTemperature;
-double currentTemperature;
+double currentTemperature = 0;
 double targetRelativeHumidity;
-double currentRelativeHumidity;
+double currentRelativeHumidity = 0;
 
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
@@ -137,7 +137,7 @@ void loop() {
       
       if (id == ID) {
         Serial.println("ID Recognized");
-        executeCommand(command);
+        executeCommand(id, command, value);
       } else {
         Serial.println("Unknown ID " + id);
       }
@@ -244,7 +244,7 @@ void autoChoseHeatingOrCooling() {
   Serial.print(" and target is ");
   Serial.print(targetTemperature);
   if(currentTemperature >= targetTemperature + TEMPERATURE_DELTA) {
-    Serial.print(". Lets cool down a little bit >");
+    Serial.print(". Lets cool down a little bit > ");
     noFrost(true);
   } else if(currentTemperature <= targetTemperature - TEMPERATURE_DELTA) {
     Serial.print(". Lets warm up a little bit > ");
@@ -361,39 +361,33 @@ void updateDHTData(boolean debug) {
     int chk = DHT.read22(DHT22_PIN);
     uint32_t stop = micros();
 
-    currentTemperature = DHT.temperature;
-    currentRelativeHumidity = DHT.humidity;
-
     if (debug) Serial.print("DHT22\t");
     
     switch (chk)
     {
     case DHTLIB_OK:
         if (debug) Serial.print("OK\t");
+        currentTemperature = DHT.temperature;
+        currentRelativeHumidity = DHT.humidity;
+        // DISPLAY DATA
+        if (debug) Serial.print(DHT.humidity, 2);
+        if (debug) Serial.print("\t\t");
+        if (debug) Serial.print(DHT.temperature, 2);//,1
+        if (debug) Serial.print("\t\t");
+        if (debug) Serial.print(stop - start);
+        if (debug) Serial.println();
         break;
     case DHTLIB_ERROR_CHECKSUM:
         Serial.println("DHT22 Checksum error\t");
-        currentTemperature = 0;
-        currentRelativeHumidity = 0;
         break;
     case DHTLIB_ERROR_TIMEOUT:
         Serial.println("DHT22 Time out error\t");
-        currentTemperature = 0;
-        currentRelativeHumidity = 0;
         break;
     default:
         Serial.println("DHT22 Unknown error\t");
-        currentTemperature = 0;
-        currentRelativeHumidity = 0;
+
         break;
     }
-    // DISPLAY DATA
-    if (debug) Serial.print(DHT.humidity, 2);
-    if (debug) Serial.print("\t\t");
-    if (debug) Serial.print(DHT.temperature, 2);//,1
-    if (debug) Serial.print("\t\t");
-    if (debug) Serial.print(stop - start);
-    if (debug) Serial.println();
 }
 
 int readBinaryString(char *s) {
