@@ -182,8 +182,18 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{targetHeatingCoolingState":3,"currentHeatingCoolingState":0,"temperature":"18.10","humidity":"34.10"}
-				this.log("CurrentTemperature %s", json.currentTemperature);
-				this.currentTemperature = parseFloat(json.currentTemperature);
+
+				if (json.currentTemperature != undefined)
+                                {
+                                  this.log("CurrentTemperature %s", json.currentTemperature);
+                                  this.currentTemperature = parseFloat(json.currentTemperature);
+                                }
+                                else
+                                {
+                                  this.log("Temperature %s", json.temperature);
+                                  this.currentTemperature = parseFloat(json.temperature);
+                                }
+								
 				callback(null, this.currentTemperature); // success
 			} else {
 				this.log("Error getting state: %s", err);
@@ -246,8 +256,18 @@ Thermostat.prototype = {
 			if (!err && response.statusCode == 200) {
 				this.log("response success");
 				var json = JSON.parse(body); //{"state":"OFF","targetStateCode":5,"temperature":"18.10","humidity":"34.10"}
-				this.log("Humidity state is %s", json.currentRelativeHumidity);
-				this.currentRelativeHumidity = parseFloat(json.currentRelativeHumidity);
+				
+				if (json.currentRelativeHumidity != undefined)
+                                {
+                                  this.log("Humidity state is %s", json.currentRelativeHumidity);
+                                  this.currentRelativeHumidity = parseFloat(json.currentRelativeHumidity);
+                                }
+                                else
+                                {
+                                  this.log("Humidity %s", json.humidity);
+                                  this.currentRelativeHumidity = parseFloat(json.humidity);
+                                }
+
 				callback(null, this.currentRelativeHumidity); // success
 			} else {
 				this.log("Error getting state: %s", err);
