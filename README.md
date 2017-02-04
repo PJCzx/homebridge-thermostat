@@ -1,6 +1,6 @@
 # homebridge-thermostat
 
-Supports thermostat devices on HomeBridge Platform.
+Supports thermostat devices on HomeBridge Platform
 
 # Installation
 
@@ -42,20 +42,39 @@ Configuration sample:
 
 The `apiroute` is used for two main calls: Get from the thermostat and set the target temperature. Your API should provide
 
-1. GET `/status` 
+1. Get any thermostat info
 =======
 ```
+GET /status
 {
     targetHeatingCoolingState: INT_VALUE_0_TO_3,
     targetTemperature: FLOAT_VALUE,
+    targetRelativeHumidity: FLOAT_VALUE,
     currentHeatingCoolingState: INT_VALUE_0_TO_2,
     currentTemperature: FLOAT_VALUE, //prev temperature
     currentRelativeHumidity: FLOAT_VALUE_AS_PERCENTAGE //prev humidity
 }
 ```
 
-2. GET `/targetTemperature/{FLOAT_VALUE}`
+2. Set target HeatingCoolingState
 =======
 ```
+GET `/targetHeatingCoolingState/{INT_VALUE_0_TO_3}`
 OK (201)
 ```
+
+3. Set target temperature
+=======
+```
+GET /targetTemperature/{FLOAT_VALUE}
+OK (201)
+```
+
+4. Set target relative humidity
+=======
+```
+GET /targetRelativeHumidity/{FLOAT_VALUE}
+OK (201)
+```
+
+
