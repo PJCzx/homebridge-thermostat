@@ -136,7 +136,7 @@ Thermostat.prototype = {
 				callback(); //Some stuff call this without value doing shit with the rest
 			} else {
 				this.log("setTargetHeatingCoolingState from/to:", this.targetHeatingCoolingState, value);
-				
+				/*
 				var action;
 
 				switch(value) {
@@ -161,9 +161,23 @@ Thermostat.prototype = {
 					this.log("Not handled case:", value);
 					break;
 				}
-				
 				request.get({
 					url: this.apiroute + action,
+					auth : this.auth
+				}, function(err, response, body) {
+					if (!err && response.statusCode == 200) {
+						this.log("response success");
+						//this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
+						this.targetHeatingCoolingState = value;
+						callback(null); // success
+					} else {
+						this.log("Error getting state: %s", err);
+						callback(err);
+					}
+				}.bind(this));
+				*/
+				request.get({
+					url: this.apiroute + "/targetHeatingCoolingState/" + value,
 					auth : this.auth
 				}, function(err, response, body) {
 					if (!err && response.statusCode == 200) {
