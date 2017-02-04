@@ -282,6 +282,7 @@ Thermostat.prototype = {
 	},
 	setTargetRelativeHumidity: function(value, callback) {
 		this.log("setTargetRelativeHumidity from/to :", this.targetRelativeHumidity, value);
+		this.log("setTargetRelativeHumidity not implemented with API");
 		this.targetRelativeHumidity = value;
 		var error = null;
 		callback(error);
