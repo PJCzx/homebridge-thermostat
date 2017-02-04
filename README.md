@@ -1,6 +1,6 @@
 # homebridge-thermostat
 
-Supports thermostat devices on HomeBridge Platform
+Supports thermostat devices on HomeBridge Platform.
 
 # Installation
 
