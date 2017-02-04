@@ -1,6 +1,6 @@
 {
   "name": "homebridge-thermostat",
-  "version": "0.0.37",
+  "version": "0.0.42",
   "description": "thermostat plugin for homebridge: https://github.com/nfarina/homebridge",
   "license": "ISC",
   "keywords": [
@@ -15,7 +15,9 @@
     "type": "git",
     "url": "git+https://github.com/PJCzx/homebridge-thermostat.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "request": "^2.79.0"
+  },
   "bugs": {
     "url": "https://github.com/PJCzx/homebridge-thermostat/issues"
   },

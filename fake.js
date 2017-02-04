@@ -17,7 +17,7 @@ app
 })
 .get('/targetTemperature/:temperature', function (req, res, next) { //Set Temperature
   data.currentTemperature = data.targetTemperature;
-  data.targetTemperature = parseInt(req.params.temperature);
+  data.targetTemperature = parseFloat(req.params.temperature);
   res.sendStatus(200);
 })
 .get('/targetHeatingCoolingState/:state', function (req, res, next) { //Set target state

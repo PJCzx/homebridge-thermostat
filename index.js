@@ -1,29 +1,3 @@
-/*
-{
-    "bridge": {
-    	...
-    },
-
-    "description": "...",
-
-    "accessories": [
-        {
-            "accessory": "Thermostat",
-            "name": "Thermostat Demo",
-            "apiroute": "http://myurl.com",
-            //optional
-            "maxTemp": "26",
-            "minTemp": "15",
-            "username": "user",
-            "password": "pass"
-        }
-    ],
-
-    "platforms":[]
-}
-
-*/
-
 var Service, Characteristic;
 var request = require("request");
 
@@ -130,70 +104,12 @@ Thermostat.prototype = {
 		this.log("implement getTargetHeatingCoolingState for WirelessThermostat");
 	},
 	setTargetHeatingCoolingState: function(value, callback) {
-		if(this.wirelessThermostat !== true) {
-
-			if(value === undefined) {
-				callback(); //Some stuff call this without value doing shit with the rest
-			} else {
-				this.log("setTargetHeatingCoolingState from/to:", this.targetHeatingCoolingState, value);
-				/*
-				var action;
-
-				switch(value) {
-					case Characteristic.TargetHeatingCoolingState.OFF:
-					action = "/off";
-					break;
-
-					case Characteristic.TargetHeatingCoolingState.HEAT:
-					action = "/comfort";
-					break;
-					
-					case Characteristic.TargetHeatingCoolingState.AUTO:
-					action = "/auto";
-					break;
-					
-					case Characteristic.TargetHeatingCoolingState.COOL:
-					action = "/no-frost";
-					break;
-
-					default:
-					action = "/no-frost";
-					this.log("Not handled case:", value);
-					break;
-				}
-				request.get({
-					url: this.apiroute + action,
-					auth : this.auth
-				}, function(err, response, body) {
-					if (!err && response.statusCode == 200) {
-						this.log("response success");
-						//this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
-						this.targetHeatingCoolingState = value;
-						callback(null); // success
-					} else {
-						this.log("Error getting state: %s", err);
-						callback(err);
-					}
-				}.bind(this));
-				*/
-				request.get({
-					url: this.apiroute + "/targetHeatingCoolingState/" + value,
-					auth : this.auth
-				}, function(err, response, body) {
-					if (!err && response.statusCode == 200) {
-						this.log("response success");
-						//this.service.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
-						this.targetHeatingCoolingState = value;
-						callback(null); // success
-					} else {
-						this.log("Error getting state: %s", err);
-						callback(err);
-					}
-				}.bind(this));
-			}
+		if(value === undefined) {
+			callback(); //Some stuff call this without value doing shit with the rest
 		} else {
+			this.log("setTargetHeatingCoolingState from/to:", this.targetHeatingCoolingState, value);
 			request.get({
-				url: "http://192.168.0.50:1234/1/"+value+"/0",
+				url: this.apiroute + "/targetHeatingCoolingState/" + value,
 				auth : this.auth
 			}, function(err, response, body) {
 				if (!err && response.statusCode == 200) {
@@ -260,21 +176,6 @@ Thermostat.prototype = {
 				callback(err);
 			}
 		}.bind(this));
-		} else {
-			this.log("setTargetTemperature for WirelessThermostat");
-			request.get({
-				url: this.apiroute + "/" + this.wirelessThermostatID + "/" + 1 + "/" + value,
-				auth : this.auth
-			}, function(err, response, body) {
-				if (!err && response.statusCode == 200) {
-					this.log("response success");
-					callback(null); // success
-				} else {
-					this.log("Error getting state: %s", err);
-					callback(err);
-				}
-			}.bind(this));
-		}
 	},
 	getTemperatureDisplayUnits: function(callback) {
 		this.log("implement getTemperatureDisplayUnits for WirelessThermostat");
