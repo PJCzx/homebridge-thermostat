@@ -45,6 +45,7 @@ function Thermostat(log, config) {
 	this.password = config.password || null;
 
 	this.wirelessThermostat = config.wirelessThermostat == true ? true : false;
+	this.wirelessThermostatID = config.wirelessThermostatID || 1;
 
 	if(this.username != null && this.password != null){
 		this.auth = {
@@ -245,7 +246,21 @@ Thermostat.prototype = {
 				callback(err);
 			}
 		}.bind(this));
-		this.log("implement setTargetTemperature for WirelessThermostat");
+		} else {
+			this.log("setTargetTemperature for WirelessThermostat");
+			request.get({
+				url: this.apiroute + "/" + this.wirelessThermostatID + "/" + 1 + "/" + value,
+				auth : this.auth
+			}, function(err, response, body) {
+				if (!err && response.statusCode == 200) {
+					this.log("response success");
+					callback(null); // success
+				} else {
+					this.log("Error getting state: %s", err);
+					callback(err);
+				}
+			}.bind(this));
+		}
 	},
 	getTemperatureDisplayUnits: function(callback) {
 		this.log("implement getTemperatureDisplayUnits for WirelessThermostat");
