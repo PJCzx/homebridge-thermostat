@@ -12,23 +12,20 @@ var data = {
 
 //ROUTING
 app
-.get('/', function (req, res, next) {
-  res.sendStatus(200);
-})
 .get('/status', function (req, res, next) {
   res.send(data);
 })
-.get('/targetTemperature/:temperature?', function (req, res, next) {
-
-  var temperature = req.params.temperature !== undefined ? parseInt(req.params.temperature) : undefined;
-
-  if (temperature) {
-      data.currentTemperature = data.targetTemperature;
-      data.targetTemperature = temperature;
-  }
-
+.get('/targetTemperature/:temperature', function (req, res, next) { //Set Temperature
+  data.currentTemperature = data.targetTemperature;
+  data.targetTemperature = parseInt(req.params.temperature);
+  res.sendStatus(200);
+})
+.get('/targetHeatingCoolingState/:state', function (req, res, next) { //Set target state
+  data.currentHeatingCoolingState = data.targetHeatingCoolingState == 3 ? 2 : data.targetHeatingCoolingState;
+  data.targetHeatingCoolingState = parseInt(req.params.state);
   res.sendStatus(200);
 });
+
 
 var server = app.listen(4321, function () {
   var host = server.address().address;
