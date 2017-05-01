@@ -136,29 +136,29 @@ Thermostat.prototype = {
 
 			switch(value) {
 				case Characteristic.TargetHeatingCoolingState.OFF:
-				action = "/off";
+				action = "/0";
 				break;
 
 				case Characteristic.TargetHeatingCoolingState.HEAT:
-				action = "/comfort";
-				break;
-				
-				case Characteristic.TargetHeatingCoolingState.AUTO:
-				action = "/auto";
+				action = "/1";
 				break;
 				
 				case Characteristic.TargetHeatingCoolingState.COOL:
-				action = "/no-frost";
+				action = "/2";
+				break;
+				
+				case Characteristic.TargetHeatingCoolingState.AUTO:
+				action = "/3";
 				break;
 
 				default:
-				action = "/no-frost";
+				action = "/0";
 				this.log("Not handled case:", value);
 				break;
 			}
 			
 			request.get({
-				url: this.apiroute + action,
+				url: this.apiroute + '/targetHeatingCoolingState/' + action,
 				auth : this.auth
 			}, function(err, response, body) {
 				if (!err && response.statusCode == 200) {
