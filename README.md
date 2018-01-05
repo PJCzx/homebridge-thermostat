@@ -73,4 +73,7 @@ GET /targetRelativeHumidity/{FLOAT_VALUE}
 OK (201)
 ```
 
+# Heatmiser Support
+
+Folder 'heatmiser' contains a contributed example of the API. It supports Heatmiser wireless thermostats, as long as https://github.com/thoukydides/heatmiser-wifi is installed and working.
 
