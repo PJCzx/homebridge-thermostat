@@ -28,7 +28,7 @@
 | `name` | Thermostat name to appear in the Home app |
 | `apiroute` | Root URL of your Thermostat device (excluding the rest of the requests) |
 | `temperatureDisplayUnits` _(optional)_ | Whether you want °C (`0`) or °F (`1`) as your units (`0` default) |
-| `humidity` _(optional)_ | (`true` or `false`) whether you want to include `currentRelativeHumidity` as a field in `/status` |
+| `humidity` _(optional)_ | (`true` or `false`) whether you want to include `currentRelativeHumidity` as a field in `/status` (see below) |
 | `maxTemp` _(optional)_ | Upper bound for the temperature selector in the Home app (`30` default) |
 | `minTemp` _(optional)_ | Lower bound for the temperature selector in the Home app (`15` default) |
 | `model` _(optional)_ | Appears under "Model" for your accessory in the Home app |
