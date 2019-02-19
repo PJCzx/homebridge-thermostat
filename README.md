@@ -39,6 +39,8 @@
 | `model` _(optional)_ | Appears under "Model" for your accessory in the Home app |
 | `serial` _(optional)_ | Appears under "Serial" for your accessory in the Home app |
 | `manufacturer` _(optional)_ | Appears under "Manufacturer" for your accessory in the Home app |
+| `useCachedResult` _(optional)_ | If true then status is cached and returned from cache for cacheTimeout for every request |
+| `cacheTimeout` _(optional)_ |  Cache timeout in milliseconds |
 
 ## API Interfacing
 

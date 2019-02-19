@@ -16,7 +16,8 @@
     "url": "git+https://github.com/PJCzx/homebridge-thermostat.git"
   },
   "dependencies": {
-    "request": "^2.65.0"
+    "request": "^2.65.0",
+    "wait-until": "0.0.2"
   },
   "bugs": {
     "url": "https://github.com/PJCzx/homebridge-thermostat/issues"
