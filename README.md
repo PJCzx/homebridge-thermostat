@@ -28,7 +28,8 @@
 | `name` | Name to appear in the Home app |
 | `apiroute` | Root URL of your Thermostat device (excluding the rest of the requests) |
 | `temperatureDisplayUnits` _(optional)_ | Whether you want °C (`0`) or °F (`1`) as your units (`0` is default) |
-| `humidity` _(optional)_ | (`true` or `false`) Whether to include `currentRelativeHumidity` as a field in `/status` (`false` is default) |
+| `currentHumidity` _(optional)_ | (`true` or `false`) Whether to include `currentRelativeHumidity` as a field in `/status` (`false` is default) |
+| `targetHumidity` _(optional)_ | (`true` or `false`) Whether to include `targetRelativeHumidity` as a field in `/status` and be able to set it via `/targetRelativeHumidity` (`false` is default) |
 | `maxTemp` _(optional)_ | Upper bound for the temperature selector in the Home app (`30` is default) |
 | `minTemp` _(optional)_ | Lower bound for the temperature selector in the Home app (`15` is default) |
 | `timeout` _(optional)_ | Time (in milliseconds) until the accessory will be marked as "Not Responding" if it is unreachable (`5000` is default) |
@@ -53,16 +54,21 @@ Your API should be able to:
 }
 ```
 
-**Note:** You can also add the `currentRelativeHumidity` field above if enabled in the `config.json`
+**Note:** You can also add the `currentRelativeHumidity` and `targetRelativeHumidity` fields individually or together above if enabled in the `config.json` (read [Structure](#structure))
 
-2. Set the targetHeatingCoolingState when it recieves:
+2. Set `targetHeatingCoolingState` when it recieves:
 ```
 /targetHeatingCoolingState/{INT_VALUE_0_TO_3}
 ```
 
-3. Set the targetTemperature when it recieves:
+3. Set `targetTemperature` when it recieves:
 ```
 /targetTemperature/{INT_VALUE}
+```
+
+4. If enabled in `config.json` (read [Structure](#structure)), set `targetRelativeHumidity` when it recieves:
+```
+/targetRelativeHumidity/{FLOAT_VALUE}
 ```
 
 ### HeatingCoolingState Key
