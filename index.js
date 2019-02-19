@@ -26,6 +26,7 @@ function Thermostat(log, config) {
   this.temperatureDisplayUnits = config.temperatureDisplayUnits || 0;
 	this.maxTemp = config.maxTemp || 30;
 	this.minTemp = config.minTemp || 15;
+  this.targetRelativeHumidity = 90;
   this.currentRelativeHumidity = 90;
   this.targetTemperature = 25;
 	this.currentTemperature = 20;
