@@ -43,7 +43,7 @@
 
 Your API should be able to:
 
-1. Return thermostat info when it recieves `/status` in the following format:
+1. Return thermostat info when it recieves `/status` in the JSON format like below:
 ```
 {
     "targetHeatingCoolingState": INT_VALUE_0_TO_3,
@@ -53,12 +53,14 @@ Your API should be able to:
 }
 ```
 
-2. Set the target state when it recieves:
+**Note:** You can also add the `currentRelativeHumidity` field above if enabled in the `config.json`
+
+2. Set the targetHeatingCoolingState when it recieves:
 ```
 /targetHeatingCoolingState/{INT_VALUE_0_TO_3}
 ```
 
-3. Set the target temperature when it recieves:
+3. Set the targetTemperature when it recieves:
 ```
 /targetTemperature/{INT_VALUE}
 ```
