@@ -1,6 +1,6 @@
 {
   "name": "homebridge-thermostat",
-  "version": "0.0.13",
+  "version": "0.0.43",
   "description": "thermostat plugin for homebridge: https://github.com/nfarina/homebridge",
   "license": "ISC",
   "keywords": [

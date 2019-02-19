@@ -6,7 +6,7 @@ Supports thermostat devices on HomeBridge Platform
 
 1. Install homebridge using: npm install -g homebridge
 2. Install this plugin using: npm install -g homebridge-thermostat
-3. Update your configuration file. See sample-config.json in this repository for a sample. 
+3. Update your configuration file. See bellow for a sample. 
 
 # Configuration
 
@@ -25,6 +25,8 @@ Configuration sample:
                 "accessory": "Thermostat",
                 "name": "Thermostat Demo",
                 "apiroute": "http://myurl.com",
+                "maxTemp": 25,
+                "minTemp": 15
                 //optional
                 "maxTemp": "26",
                 "minTemp": "15",
@@ -40,17 +42,38 @@ Configuration sample:
 
 The `apiroute` is used for two main calls: Get from the thermostat and set the target temperature. Your API should provide
 
-1. GET `/status` 
+1. Get any thermostat info
 ```
+GET /status
 {
-    "targetTemperature":18,
-    "temperature":"21.40",
-    //optional
-    "humidity":"69.20",
-    "currentHeatingCoolingState":"1",
-    "targetHeatingCoolingState":"3"
-
+    targetHeatingCoolingState: INT_VALUE_0_TO_3,
+    targetTemperature: FLOAT_VALUE,
+    targetRelativeHumidity: FLOAT_VALUE,
+    currentHeatingCoolingState: INT_VALUE_0_TO_2,
+    currentTemperature: FLOAT_VALUE, //prev temperature
+    currentRelativeHumidity: FLOAT_VALUE_AS_PERCENTAGE //prev humidity
 }
 ```
 
-2. GET `/targetTemperature/{FLOAT_VALUE}`
+2. Set target HeatingCoolingState
+```
+GET /targetHeatingCoolingState/{INT_VALUE_0_TO_3}
+OK (201)
+```
+
+3. Set target temperature
+```
+GET /targetTemperature/{FLOAT_VALUE}
+OK (201)
+```
+
+4. Set target relative humidity
+```
+GET /targetRelativeHumidity/{FLOAT_VALUE}
+OK (201)
+```
+
+# Heatmiser Support
+
+Folder 'heatmiser' contains a contributed example of the API. It supports Heatmiser wireless thermostats, as long as https://github.com/thoukydides/heatmiser-wifi is installed and working.
+
