@@ -31,13 +31,13 @@
 | `humidity` _(optional)_ | (`true` or `false`) whether you want to include `currentRelativeHumidity` as a field in `/status` (see below) |
 | `maxTemp` _(optional)_ | Upper bound for the temperature selector in the Home app (`30` default) |
 | `minTemp` _(optional)_ | Lower bound for the temperature selector in the Home app (`15` default) |
-| `model` _(optional)_ | Appears under "Model" for your accessory in the Home app |
-| `serial` _(optional)_ | Appears under "Serial" for your accessory in the Home app |
-| `manufacturer` _(optional)_ | Appears under "Manufacturer" for your accessory in the Home app |
 | `timeout` _(optional)_ | Time (in milliseconds) until the accessory will be marked as "Not Responding" if it is unreachable. (5000ms default) |
 | `http_method` _(optional)_ | The HTTP method used to communicate with the thermostat (`GET` is default) |
 | `username` _(optional)_ | Username if HTTP authentication is enabled on the thermostat |
 | `password` _(optional)_ | Password if HTTP authentication is enabled on the thermostat |
+| `model` _(optional)_ | Appears under "Model" for your accessory in the Home app |
+| `serial` _(optional)_ | Appears under "Serial" for your accessory in the Home app |
+| `manufacturer` _(optional)_ | Appears under "Manufacturer" for your accessory in the Home app |
 
 ## API Interfacing
 
