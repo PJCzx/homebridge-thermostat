@@ -21,7 +21,8 @@ function Thermostat(log, config) {
   this.timeout = config.timeout || 5000;
   this.http_method = config.http_method || 'GET';
 
-  this.humidity = config.humidity || false;
+  this.currentHumidity = config.currentHumidity || false;
+  this.targetHumidity = config.targetHumidity || false;
   this.temperatureDisplayUnits = config.temperatureDisplayUnits || 0;
 	this.maxTemp = config.maxTemp || 30;
 	this.minTemp = config.minTemp || 15;
@@ -69,7 +70,7 @@ Thermostat.prototype = {
     var url = this.apiroute+"/status";
     this._httpRequest(url, '', 'GET', function (error, response, responseBody) {
         if (error) {
-          this.log("[!] Error getting CurrentHeatingCoolingState: %s", error.message);
+          this.log("[!] Error getting currentHeatingCoolingState: %s", error.message);
   				callback(error);
         } else {
           var json = JSON.parse(responseBody);
@@ -81,11 +82,11 @@ Thermostat.prototype = {
 	},
 
   getTargetHeatingCoolingState: function(callback) {
-    this.log("[+] getCurrentHeatingCoolingState from:", this.apiroute+"/status");
+    this.log("[+] getTargerHeatingCoolingState from:", this.apiroute+"/status");
     var url = this.apiroute+"/status";
     this._httpRequest(url, '', 'GET', function (error, response, responseBody) {
         if (error) {
-          this.log("[!] Error getting TargetHeatingCoolingState: %s", error.message);
+          this.log("[!] Error getting targetHeatingCoolingState: %s", error.message);
   				callback(error);
         } else {
           var json = JSON.parse(responseBody);
@@ -101,7 +102,7 @@ Thermostat.prototype = {
     url = this.apiroute + '/targetHeatingCoolingState/' + value;
     this._httpRequest(url, '', 'GET', function (error, response, responseBody) {
         if (error) {
-          this.log("[!] Error getting state: %s", error.message);
+          this.log("[!] Error setting targetHeatingCoolingState: %s", error.message);
 					callback(error);
         } else {
           this.log("[*] Sucessfully set targetHeatingCoolingState to %s", value);
@@ -115,7 +116,7 @@ Thermostat.prototype = {
     var url = this.apiroute+"/status";
     this._httpRequest(url, '', 'GET', function (error, response, responseBody) {
         if (error) {
-          this.log("[!] Error getting state: %s", error.message);
+          this.log("[!] Error getting currentTemperature: %s", error.message);
   				callback(error);
         } else {
   				var json = JSON.parse(responseBody);
@@ -131,7 +132,7 @@ Thermostat.prototype = {
     var url = this.apiroute+"/status";
     this._httpRequest(url, '', 'GET', function (error, response, responseBody) {
         if (error) {
-          this.log("[!] Error getting state: %s", error.message);
+          this.log("[!] Error getting targetTemperature: %s", error.message);
   				callback(error);
         } else {
   				var json = JSON.parse(responseBody);
@@ -147,10 +148,10 @@ Thermostat.prototype = {
     var url = this.apiroute+"/targetTemperature/"+value;
     this._httpRequest(url, '', 'GET', function (error, response, responseBody) {
         if (error) {
-          this.log("[!] Error setting temperature", error.message);
+          this.log("[!] Error setting targetTemperature", error.message);
   				callback(error);
         } else {
-          this.log("[*] Sucessfully set teperature to %s", value);
+          this.log("[*] Sucessfully set targetTemperature to %s", value);
   				callback();
         }
     }.bind(this));
@@ -161,13 +162,43 @@ Thermostat.prototype = {
     var url = this.apiroute+"/status";
     this._httpRequest(url, '', 'GET', function (error, response, responseBody) {
         if (error) {
-          this.log("[!] Error getting state: %s", error.message);
+          this.log("[!] Error getting currentRelativeHumidity: %s", error.message);
   				callback(error);
         } else {
   				var json = JSON.parse(responseBody);
   				this.currentRelativeHumidity = parseFloat(json.currentRelativeHumidity);
   				this.log("[*] currentRelativeHumidity: %s", this.currentRelativeHumidity);
   				callback(null, this.currentRelativeHumidity);
+        }
+    }.bind(this));
+  },
+
+  getTargetRelativeHumidity: function(callback) {
+    this.log("[+] getTargetRelativeHumidity from:", this.apiroute+"/status");
+    var url = this.apiroute+"/status";
+    this._httpRequest(url, '', 'GET', function (error, response, responseBody) {
+        if (error) {
+          this.log("[!] Error getting targetRelativeHumidity: %s", error.message);
+  				callback(error);
+        } else {
+  				var json = JSON.parse(responseBody);
+  				this.targetRelativeHumidity = parseFloat(json.targetRelativeHumidity);
+  				this.log("[*] targetRelativeHumidity: %s", this.targetRelativeHumidity);
+  				callback(null, this.targetRelativeHumidity);
+        }
+    }.bind(this));
+  },
+
+  setTargetRelativeHumidity: function(value, callback) {
+    this.log("[+] setTargetRelativeHumidity from %s to %s", this.targetRelativeHumidity, value);
+    var url = this.apiroute+"/targetRelativeHumidity/"+value;
+    this._httpRequest(url, '', 'GET', function (error, response, responseBody) {
+        if (error) {
+          this.log("[!] Error setting targetRelativeHumidity", error.message);
+  				callback(error);
+        } else {
+          this.log("[*] Sucessfully set targetRelativeHumidity to %s", value);
+  				callback();
         }
     }.bind(this));
   },
@@ -223,10 +254,17 @@ Thermostat.prototype = {
 			.getCharacteristic(Characteristic.Name)
 			.on('get', this.getName.bind(this));
 
-    if (this.humidity) {  //If "humidity" is enabled in config.json then declare it. Otherwise, ignore it
+    if (this.currentHumidity) {  //If "currentHumidity" is enabled in config.json then declare it. Otherwise, ignore it
       this.service
 			  .getCharacteristic(Characteristic.CurrentRelativeHumidity)
 			  .on('get', this.getCurrentRelativeHumidity.bind(this));
+    }
+
+    if (this.targetHumidity) {  //If "targetHumidity" is enabled in config.json then declare it. Otherwise, ignore it
+      this.service
+        .getCharacteristic(Characteristic.TargetRelativeHumidity)
+        .on('get', this.getTargetRelativeHumidity.bind(this))
+        .on('set', this.setTargetRelativeHumidity.bind(this));
     }
 
 		this.service.getCharacteristic(Characteristic.CurrentTemperature)
