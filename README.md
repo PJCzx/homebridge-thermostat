@@ -20,21 +20,21 @@
 ]
 ```
 
-## Structure
+### Structure
 
 | Key | Description |
 | --- | --- |
 | `accessory` | Must be `Thermostat` |
-| `name` | Thermostat name to appear in the Home app |
+| `name` | Name to appear in the Home app |
 | `apiroute` | Root URL of your Thermostat device (excluding the rest of the requests) |
-| `temperatureDisplayUnits` _(optional)_ | Whether you want °C (`0`) or °F (`1`) as your units (`0` default) |
-| `humidity` _(optional)_ | (`true` or `false`) whether you want to include `currentRelativeHumidity` as a field in `/status` (see below) |
-| `maxTemp` _(optional)_ | Upper bound for the temperature selector in the Home app (`30` default) |
-| `minTemp` _(optional)_ | Lower bound for the temperature selector in the Home app (`15` default) |
-| `timeout` _(optional)_ | Time (in milliseconds) until the accessory will be marked as "Not Responding" if it is unreachable. (5000ms default) |
+| `temperatureDisplayUnits` _(optional)_ | Whether you want °C (`0`) or °F (`1`) as your units (`0` is default) |
+| `humidity` _(optional)_ | (`true` or `false`) Whether to include `currentRelativeHumidity` as a field in `/status` (`false` is default) |
+| `maxTemp` _(optional)_ | Upper bound for the temperature selector in the Home app (`30` is default) |
+| `minTemp` _(optional)_ | Lower bound for the temperature selector in the Home app (`15` is default) |
+| `timeout` _(optional)_ | Time (in milliseconds) until the accessory will be marked as "Not Responding" if it is unreachable (`5000` is default) |
 | `http_method` _(optional)_ | The HTTP method used to communicate with the thermostat (`GET` is default) |
-| `username` _(optional)_ | Username if HTTP authentication is enabled on the thermostat |
-| `password` _(optional)_ | Password if HTTP authentication is enabled on the thermostat |
+| `username` _(optional)_ | Username if HTTP authentication is enabled |
+| `password` _(optional)_ | Password if HTTP authentication is enabled |
 | `model` _(optional)_ | Appears under "Model" for your accessory in the Home app |
 | `serial` _(optional)_ | Appears under "Serial" for your accessory in the Home app |
 | `manufacturer` _(optional)_ | Appears under "Manufacturer" for your accessory in the Home app |
