@@ -12,7 +12,7 @@ function Thermostat(log, config) {
 
   this.name = config.name;
   this.manufacturer = config.manufacturer || 'HTTP Manufacturer';
-  this.model = config.model || 'homebridge-better-http-rgb';
+  this.model = config.model || 'homebridge-thermostat';
   this.serial = config.serial || 'HTTP Serial Number';
 
   this.apiroute = config.apiroute
@@ -107,6 +107,7 @@ Thermostat.prototype = {
 					callback(error);
         } else {
           this.log("[*] Sucessfully set targetHeatingCoolingState to %s", value);
+          this.service.setCharacteristic(Characteristic.CurrentHeatingCoolingState, value);
           callback();
         }
     }.bind(this));
@@ -255,13 +256,13 @@ Thermostat.prototype = {
 			.getCharacteristic(Characteristic.Name)
 			.on('get', this.getName.bind(this));
 
-    if (this.currentHumidity) {  //If "currentHumidity" is enabled in config.json then declare it. Otherwise, ignore it
+    if (this.currentHumidity) {
       this.service
 			  .getCharacteristic(Characteristic.CurrentRelativeHumidity)
 			  .on('get', this.getCurrentRelativeHumidity.bind(this));
     }
 
-    if (this.targetHumidity) {  //If "targetHumidity" is enabled in config.json then declare it. Otherwise, ignore it
+    if (this.targetHumidity) {
       this.service
         .getCharacteristic(Characteristic.TargetRelativeHumidity)
         .on('get', this.getTargetRelativeHumidity.bind(this))
