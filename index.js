@@ -13,7 +13,7 @@ function Thermostat(log, config) {
 
     this.name = config.name;
     this.manufacturer = config.manufacturer || 'HTTP Manufacturer';
-    this.model = config.model || 'homebridge-better-http-rgb';
+    this.model = config.model || 'homebridge-thermostat';
     this.serial = config.serial || 'HTTP Serial Number';
 
     this.apiroute = config.apiroute;
@@ -105,6 +105,7 @@ Thermostat.prototype = {
             this.requestStarted = true;
             setTimeout(function () {
                 if (this.requestStarted && !this.validCache) {
+                    this.log("[ ! ] Changing request started to false due to some error");
                     this.requestStarted = false;
                 }
             }, this.timeout);
@@ -128,8 +129,9 @@ Thermostat.prototype = {
         }
         let interval = 500;
         let times = this.timeout / interval + 1;
+        let that = this;
         waitUntil(interval, times, function condition() {
-            return (!this.requestStarted);
+            return (!that.requestStarted && that.validCache);
         }, function done(result) {
             callback(requestError);
         });
@@ -164,10 +166,12 @@ Thermostat.prototype = {
     setTargetHeatingCoolingState: function (value, callback) {
         this.log("[+] setTargetHeatingCoolingState from %s to %s", this.targetHeatingCoolingState, value);
         url = this.apiroute + '/targetHeatingCoolingState/' + value;
+        this.validCache = false;
         this._httpRequest(url, '', 'GET', function (error) {
             if (error) {
                 this.log("[!] Error setting targetHeatingCoolingState: %s", error.message);
-                this.validCache = false;
+                that.validCache = false;
+                this.service.setCharacteristic(Characteristic.CurrentHeatingCoolingState, value);
                 callback(error);
             } else {
                 this.log("[*] Sucessfully set targetHeatingCoolingState to %s", value);
@@ -205,10 +209,10 @@ Thermostat.prototype = {
     setTargetTemperature: function (value, callback) {
         this.log("[+] setTargetTemperature from %s to %s", this.targetTemperature, value);
         var url = this.apiroute + "/targetTemperature/" + value;
+        this.validCache = false;
         this._httpRequest(url, '', 'GET', function (error) {
             if (error) {
                 this.log("[!] Error setting targetTemperature", error.message);
-                this.validCache = false;
                 callback(error);
             } else {
                 this.log("[*] Sucessfully set targetTemperature to %s", value);
