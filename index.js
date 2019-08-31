@@ -271,9 +271,7 @@ Thermostat.prototype = {
 
 		this.service.getCharacteristic(Characteristic.CurrentTemperature)
 			.setProps({
-				minValue: this.minTemp,
-				maxValue: this.maxTemp,
-				minStep: 0.5
+				minStep: 0.1
 			});
 
 		this.service.getCharacteristic(Characteristic.TargetTemperature)
