@@ -73,6 +73,9 @@ Thermostat.prototype = {
         if (error) {
           this.log("[!] Error getting currentHeatingCoolingState: %s", error.message);
   				callback(error);
+        } else if ( response.statusCode >= 300 ) {
+            this.log("[!] Error getting currentHeatingCoolingState: %d - %s", response.statusCode, response.statusMessage);
+            callback(response.statusCode);
         } else {
           var json = JSON.parse(responseBody);
           this.log("[*] currentHeatingCoolingState: %s", json.currentHeatingCoolingState);
@@ -89,6 +92,9 @@ Thermostat.prototype = {
         if (error) {
           this.log("[!] Error getting targetHeatingCoolingState: %s", error.message);
   				callback(error);
+        } else if ( response.statusCode >= 300 ) {
+            this.log("[!] Error getting targetHeatingCoolingState: %d - %s", response.statusCode, response.statusMessage);
+            callback(response.statusCode);
         } else {
           var json = JSON.parse(responseBody);
           this.log("[*] targetHeatingCoolingState: %s", json.targetHeatingCoolingState);
@@ -105,6 +111,9 @@ Thermostat.prototype = {
         if (error) {
           this.log("[!] Error setting targetHeatingCoolingState: %s", error.message);
 					callback(error);
+        } else if ( response.statusCode >= 300 ) {
+            this.log("[!] Error setting targetHeatingCoolingState: %d - %s", response.statusCode, response.statusMessage);
+            callback(response.statusCode);
         } else {
           this.log("[*] Sucessfully set targetHeatingCoolingState to %s", value);
           this.service.setCharacteristic(Characteristic.CurrentHeatingCoolingState, value);
@@ -120,6 +129,9 @@ Thermostat.prototype = {
         if (error) {
           this.log("[!] Error getting currentTemperature: %s", error.message);
   				callback(error);
+        } else if ( response.statusCode >= 300 ) {
+            this.log("[!] Error getting currentTemperature: %d - %s", response.statusCode, response.statusMessage);
+            callback(response.statusCode);
         } else {
   				var json = JSON.parse(responseBody);
           this.currentTemperature = parseFloat(json.currentTemperature);
@@ -136,6 +148,9 @@ Thermostat.prototype = {
         if (error) {
           this.log("[!] Error getting targetTemperature: %s", error.message);
   				callback(error);
+        } else if ( response.statusCode >= 300 ) {
+            this.log("[!] Error getting targetTemperature: %d - %s", response.statusCode, response.statusMessage);
+            callback(response.statusCode);
         } else {
   				var json = JSON.parse(responseBody);
   				this.targetTemperature = parseFloat(json.targetTemperature);
@@ -152,6 +167,9 @@ Thermostat.prototype = {
         if (error) {
           this.log("[!] Error setting targetTemperature", error.message);
   				callback(error);
+        } else if ( response.statusCode >= 300 ) {
+            this.log("[!] Error setting targetTemperature: %d - %s", response.statusCode, response.statusMessage);
+            callback(response.statusCode);
         } else {
           this.log("[*] Sucessfully set targetTemperature to %s", value);
   				callback();
@@ -166,6 +184,9 @@ Thermostat.prototype = {
         if (error) {
           this.log("[!] Error getting currentRelativeHumidity: %s", error.message);
   				callback(error);
+        } else if ( response.statusCode >= 300 ) {
+            this.log("[!] Error getting currentRelativeHumidity: %d - %s", response.statusCode, response.statusMessage);
+            callback(response.statusCode);
         } else {
   				var json = JSON.parse(responseBody);
   				this.currentRelativeHumidity = parseFloat(json.currentRelativeHumidity);
@@ -182,6 +203,9 @@ Thermostat.prototype = {
         if (error) {
           this.log("[!] Error getting targetRelativeHumidity: %s", error.message);
   				callback(error);
+        } else if ( response.statusCode >= 300 ) {
+            this.log("[!] Error getting targetRelativeHumidity: %d - %s", response.statusCode, response.statusMessage);
+            callback(response.statusCode);
         } else {
   				var json = JSON.parse(responseBody);
   				this.targetRelativeHumidity = parseFloat(json.targetRelativeHumidity);
@@ -198,6 +222,9 @@ Thermostat.prototype = {
         if (error) {
           this.log("[!] Error setting targetRelativeHumidity", error.message);
   				callback(error);
+        } else if ( response.statusCode >= 300 ) {
+            this.log("[!] Error setting targetRelativeHumidity: %d - %s", response.statusCode, response.statusMessage);
+            callback(response.statusCode);
         } else {
           this.log("[*] Sucessfully set targetRelativeHumidity to %s", value);
   				callback();
