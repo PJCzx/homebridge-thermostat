@@ -30,6 +30,7 @@
 | `temperatureDisplayUnits` _(optional)_ | Whether you want °C (`0`) or °F (`1`) as your units (`0` is default) |
 | `currentHumidity` _(optional)_ | (`true` or `false`) Whether to include `currentRelativeHumidity` as a field in `/status` (`false` is default) |
 | `targetHumidity` _(optional)_ | (`true` or `false`) Whether to include `targetRelativeHumidity` as a field in `/status` and be able to set it via `/targetRelativeHumidity` (`false` is default) |
+| `heatOnly` _(optional)_ | (`true` or `false`) Whether the thermostat only supports heating (`true`) or heating and cooling (`false`) (`false` is default) |
 | `maxTemp` _(optional)_ | Upper bound for the temperature selector in the Home app (`30` is default) |
 | `minTemp` _(optional)_ | Lower bound for the temperature selector in the Home app (`15` is default) |
 | `timeout` _(optional)_ | Time (in milliseconds) until the accessory will be marked as "Not Responding" if it is unreachable (`5000` is default) |
