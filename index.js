@@ -313,6 +313,7 @@ Thermostat.prototype = {
 				.setProps({
 					minValue: 0,
 					maxValue: 1,
+					validValues: [0,1]
 				});
 		}
 		return [this.informationService, this.service];
