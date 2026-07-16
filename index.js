@@ -116,7 +116,7 @@ Thermostat.prototype = {
             this.log("[!] Error setting targetHeatingCoolingState: %d - %s", response.statusCode, response.statusMessage);
             callback(response.statusCode);
         } else {
-          this.log("[*] Sucessfully set targetHeatingCoolingState to %s", value);
+          this.log("[*] Successfully set targetHeatingCoolingState to %s", value);
           this.service.setCharacteristic(Characteristic.CurrentHeatingCoolingState, value);
           callback();
         }
@@ -172,7 +172,7 @@ Thermostat.prototype = {
             this.log("[!] Error setting targetTemperature: %d - %s", response.statusCode, response.statusMessage);
             callback(response.statusCode);
         } else {
-          this.log("[*] Sucessfully set targetTemperature to %s", value);
+          this.log("[*] Successfully set targetTemperature to %s", value);
   				callback();
         }
     }.bind(this));
@@ -227,7 +227,7 @@ Thermostat.prototype = {
             this.log("[!] Error setting targetRelativeHumidity: %d - %s", response.statusCode, response.statusMessage);
             callback(response.statusCode);
         } else {
-          this.log("[*] Sucessfully set targetRelativeHumidity to %s", value);
+          this.log("[*] Successfully set targetRelativeHumidity to %s", value);
   				callback();
         }
     }.bind(this));
